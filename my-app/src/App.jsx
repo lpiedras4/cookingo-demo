@@ -39,7 +39,7 @@ function App() {
           </svg>
           <h2>Documentation</h2>
           <p>Your questions, answered</p>
-          <ul className='text-3xl font-bold underline bg-amber-50'>
+          <ul>
             <li>
               <a href="https://vite.dev/" target="_blank">
                 <img className="logo" src={viteLogo} alt="" />
