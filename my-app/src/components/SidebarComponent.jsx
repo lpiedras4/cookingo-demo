@@ -1,16 +1,34 @@
-import React from 'react'
-import { Sidebar, SidebarItem, SidebarItemGroup, SidebarItems } from "flowbite-react";
-import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, HiViewBoards } from "react-icons/hi";
+import React from "react";
+import {
+  Sidebar,
+  SidebarItem,
+  SidebarItemGroup,
+  SidebarItems,
+} from "flowbite-react";
+import {
+  HiArrowSmRight,
+  HiChartPie,
+  HiInbox,
+  HiShoppingBag,
+  HiTable,
+  HiUser,
+  HiViewBoards,
+} from "react-icons/hi";
 
 const SidebarComponent = () => {
   return (
-   <Sidebar aria-label="Default sidebar example">
+    <Sidebar aria-label="Default sidebar example">
       <SidebarItems>
         <SidebarItemGroup>
           <SidebarItem href="#" icon={HiChartPie}>
             Dashboard
           </SidebarItem>
-          <SidebarItem href="#" icon={HiViewBoards} label="Pro" labelColor="dark">
+          <SidebarItem
+            href="#"
+            icon={HiViewBoards}
+            label="Pro"
+            labelColor="dark"
+          >
             Kanban
           </SidebarItem>
           <SidebarItem href="#" icon={HiInbox} label="3">
@@ -31,7 +49,7 @@ const SidebarComponent = () => {
         </SidebarItemGroup>
       </SidebarItems>
     </Sidebar>
-  )
-}
+  );
+};
 
-export default SidebarComponent
+export default SidebarComponent;
