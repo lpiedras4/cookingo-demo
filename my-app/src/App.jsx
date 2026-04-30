@@ -1,17 +1,15 @@
 import React from "react";
 import "./css/App.css";
-import Navbar from "./components/Navbar";
-import {Routes,Route} from 'react-router-dom';
-import Home from "./pages/Home";
-
+import { Routes, Route } from "react-router-dom";
+import RootLayout from "./_root/RootLayout";
+import SidebarComponent from "./components/ui/SidebarComponent";
 
 const App = () => {
   return (
     <div>
-      <Navbar />
-      <main className=" main-content">
+      <main className="main-content">
         <Routes>
-            <Route path = "/" element={<Home/>}/>
+          <Route path="/" element={<RootLayout />} />
         </Routes>
       </main>
     </div>
