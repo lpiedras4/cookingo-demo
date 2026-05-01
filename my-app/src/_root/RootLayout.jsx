@@ -5,10 +5,10 @@ import Home from "./pages/Home";
 
 const RootLayout = () => {
   return (
-    <div>
+    <div className="w-full md:flex">
       <SidebarComponent />
-      <section>
-        <Home />
+      <section className="flex flex-1 h-full">
+        <Outlet/>
       </section>
     </div>
   );
