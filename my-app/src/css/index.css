@@ -1,1 +1,15 @@
 @import "tailwindcss";
+.custom-sidebar{
+  background-color: #0C7C59;
+  color: white;
+}
+
+@theme {
+  --color-cream:        #F5E3C8;   /* fondo principal */
+  --color-forest:       #1B5C3E;   /* sidebar, botones primarios */
+  --color-forest-dark:  #144A31;   /* hover del sidebar */
+  --color-amber:        #F5A623;   /* hero cards, progreso activo */
+  --color-amber-dark:   #E09410;   /* hover amber */
+  --color-orange:       #E8843A;   /* tiles de ingredientes */
+  --color-orange-dark:  #D4601A;   /* hover de tiles */
+}

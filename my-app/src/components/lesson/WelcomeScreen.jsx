@@ -1,10 +1,12 @@
 import React from 'react'
-
+import {RecipeHighlight} from "./RecipeHighlight"
 const WelcomeScreen = () => {
   return (
-    <div>
-      
-    </div>
+
+      <section>
+
+      </section>
+  
   )
 }
 
