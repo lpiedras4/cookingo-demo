@@ -889,3 +889,523 @@ Ya sabes:
 Cuando estés listo, escribe **"sigue"** y arranco la **Tanda 3**: custom hook `useProgress` con `useEffect` + `localStorage` (L5) y lifting state up para conectar el XP al flujo real (L6).
 
 > ❓ Si algo de props, callbacks o `useState` no aterrizó, pregúntalo ahora.
+
+---
+
+# 🔥 Tanda 3 — Persistencia y state lifting
+
+Hasta ahora el XP se resetea cada vez que recargas la página. En esta tanda vas a guardarlo en `localStorage` con un custom hook, y vas a entender por qué el estado "sube" al componente padre.
+
+---
+
+# Lección 5 — Custom hook `useProgress` (useEffect + localStorage)
+
+## 🎯 Objetivo
+
+Crear un hook reutilizable que guarde el XP del usuario en `localStorage`. Al recargar la página, el XP persiste. Al terminar entenderás `useEffect` (el hook de "efectos secundarios") y cómo separar lógica reutilizable del componente visual.
+
+## 💡 Concepto clave: hooks personalizados y efectos secundarios
+
+**Un custom hook** es una función que empieza con `use` y puede llamar a otros hooks (`useState`, `useEffect`, etc.). Te permite **extraer lógica con estado** y reutilizarla en varios componentes.
+
+**`useEffect`** es el hook para "efectos secundarios" — acciones que pasan **fuera** de React:
+- Leer/escribir `localStorage`
+- Hacer `fetch` a una API
+- Suscribirse a eventos del navegador
+- Cambiar el `document.title`
+
+> **Analogía**: `useState` es la memoria del componente. `useEffect` es el asistente que sincroniza esa memoria con el mundo exterior (localStorage, APIs, DOM). Sin `useEffect`, tu estado vive solo dentro de React; con él, puede salir al navegador.
+
+La regla de oro:
+
+> **"Render primero, efecto después."** React renderiza el JSX, lo pinta en pantalla, y **después** ejecuta los `useEffect`. Nunca al revés.
+
+## 🛠️ Manos a la obra
+
+### Paso 1 — Crear `src/hooks/useProgress.js`
+
+```js
+import { useState, useEffect } from "react";
+
+// Clave en localStorage — prefijada con el nombre de la app para evitar colisiones
+const STORAGE_KEY = "nutricocina-progress";
+
+/**
+ * Hook personalizado para gestionar el progreso del usuario (XP, badges, lecciones completadas).
+ * Persiste en localStorage automáticamente.
+ * @returns {{ xp: number, addXp: (points: number) => void }}
+ */
+export function useProgress() {
+  // Inicialización "lazy" — la función solo corre en el primer render
+  const [xp, setXp] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        return data.xp || 0;
+      }
+    } catch (error) {
+      // Si localStorage falla (modo privado, corrupto), arranca en 0
+      console.warn("No se pudo leer localStorage:", error);
+    }
+    return 0;
+  });
+
+  // useEffect: cada vez que `xp` cambia, guarda en localStorage
+  useEffect(() => {
+    try {
+      const data = { xp }; // Por ahora solo XP; en el futuro: badges, completedLessons
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.warn("No se pudo guardar en localStorage:", error);
+    }
+  }, [xp]); // 👈 Array de dependencias: solo vuelve a correr si `xp` cambia
+
+  // Función para sumar XP — encapsula el setter
+  const addXp = (points) => {
+    setXp((current) => current + points);
+  };
+
+  return { xp, addXp };
+}
+```
+
+### Paso 2 — ¿Cómo funciona `useEffect`?
+
+```js
+useEffect(() => {
+  // Código que corre DESPUÉS del render
+  console.log("El efecto corrió");
+}, [dependencia1, dependencia2]);
+```
+
+**Cuándo corre el efecto:**
+1. Siempre en el **primer render** (mount).
+2. En renders posteriores, **solo si alguna dependencia cambió**.
+
+**Tres patrones comunes:**
+
+| Dependencias | Comportamiento |
+|---|---|
+| `[]` (array vacío) | Corre solo una vez al montar el componente |
+| `[xp, step]` | Corre cada vez que `xp` o `step` cambian |
+| Sin array | Corre **en cada render** (casi nunca lo quieres) |
+
+En nuestro hook usamos `[xp]` porque queremos guardar en localStorage **solo cuando el XP cambia**, no en cada render.
+
+### Paso 3 — Probar el hook en `App.jsx`
+
+```jsx
+// src/App.jsx
+import { getLesson } from "./data/lessons";
+import { LessonFlow } from "./components/lesson/LessonFlow";
+import { useProgress } from "./hooks/useProgress"; // 👈 nuevo
+
+export default function App() {
+  const lesson = getLesson("overnight-oats");
+  const { xp, addXp } = useProgress(); // 👈 el hook vive aquí, en el padre
+
+  return (
+    <main className="mx-auto min-h-screen max-w-md bg-cream px-5 py-6">
+      {/* Muestra el XP total del usuario arriba de todo */}
+      <div className="mb-4 text-center">
+        <p className="font-display text-sm font-bold text-forest">
+          ✨ {xp} XP total
+        </p>
+      </div>
+
+      {/* Pasa addXp hacia abajo — LessonFlow ya no maneja su propio XP */}
+      <LessonFlow lesson={lesson} onEarnXp={addXp} />
+    </main>
+  );
+}
+```
+
+### Paso 4 — Actualizar `LessonFlow` para recibir `onEarnXp`
+
+Ahora `LessonFlow` **no maneja XP directamente** — solo reporta hacia arriba "gané X puntos" y el padre decide qué hacer.
+
+```jsx
+// src/components/lesson/LessonFlow.jsx
+import { useState } from "react";
+import { WelcomeScreen } from "./WelcomeScreen";
+import { TOTAL_SCREENS } from "../../data/lessons";
+
+/**
+ * @param {{ 
+ *   lesson: import("../../data/lessons").Lesson,
+ *   onEarnXp: (points: number) => void  // 👈 callback para reportar XP ganado
+ * }} props
+ */
+export function LessonFlow({ lesson, onEarnXp }) {
+  const [step, setStep] = useState(1);
+
+  const next = () => {
+    setStep((s) => Math.min(TOTAL_SCREENS, s + 1));
+    onEarnXp(10); // 👈 reporta 10 XP por avanzar (temporal — en L6 será el XP real del quiz)
+  };
+
+  const prev = () => setStep((s) => Math.max(1, s - 1));
+
+  return (
+    <div>
+      {/* Barra de progreso */}
+      <div className="mb-2 flex items-center gap-3">
+        <div className="flex-1 h-1.5 rounded-full bg-stone-200">
+          <div
+            className="h-full rounded-full bg-amber transition-all duration-300"
+            style={{ width: `${(step / TOTAL_SCREENS) * 100}%` }}
+          />
+        </div>
+        <span className="text-xs text-stone-400 tabular-nums">
+          {step} / {TOTAL_SCREENS}
+        </span>
+      </div>
+
+      {/* Pantallas */}
+      {step === 1 && <WelcomeScreen lesson={lesson} onStart={next} />}
+      {step === 2 && <PlaceholderScreen title="🛒 Compra los ingredientes" onNext={next} onPrev={step > 1 ? prev : null} />}
+      {step === 3 && <PlaceholderScreen title="📋 Prepara los ingredientes" onNext={next} onPrev={prev} />}
+      {step === 4 && <PlaceholderScreen title="🍳 ¡Hagamos el platillo!"    onNext={next} onPrev={prev} />}
+      {step === 5 && <PlaceholderScreen title="🎉 ¡Lección completada!"     onNext={null} onPrev={prev} />}
+    </div>
+  );
+}
+
+function PlaceholderScreen({ title, onNext, onPrev }) {
+  return (
+    <div className="mt-6 space-y-4 rounded-3xl border-2 border-dashed border-stone-300 p-8 text-center">
+      <p className="font-display text-2xl font-bold text-stone-700">{title}</p>
+      <p className="text-sm text-stone-400">Esta pantalla se construye en la próxima tanda.</p>
+      <div className="flex gap-3 pt-2">
+        {onPrev && (
+          <button onClick={onPrev} className="flex-1 rounded-2xl border border-stone-300 py-3 text-stone-600 hover:bg-stone-100">
+            ← Atrás
+          </button>
+        )}
+        {onNext && (
+          <button onClick={onNext} className="flex-1 rounded-2xl bg-forest py-3 font-bold text-white hover:bg-forest-dark">
+            Siguiente →
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+### Paso 5 — Probarlo
+
+1. Abre la app, avanza de paso. El XP sube.
+2. Recarga la página con `Cmd+R` / `Ctrl+R`.
+3. El XP **persiste** — no vuelve a 0. 🎉
+
+Abre DevTools → Application → Local Storage → `http://localhost:5173`. Deberías ver:
+
+```
+nutricocina-progress: {"xp":40}
+```
+
+## 🤔 Decisión de diseño
+
+### ¿Por qué `useState(() => ...)` con función en lugar de un valor directo?
+
+```js
+// ❌ Esto lee localStorage en CADA render
+const [xp, setXp] = useState(JSON.parse(localStorage.getItem(STORAGE_KEY))?.xp || 0);
+
+// ✅ Esto lo lee solo UNA VEZ (primer render)
+const [xp, setXp] = useState(() => {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  return saved ? JSON.parse(saved).xp : 0;
+});
+```
+
+La forma función se llama **"lazy initialization"**. La función solo corre en el primer render, no en cada re-render. Leer `localStorage` es lento comparado con memoria — no quieres hacerlo 60 veces por segundo.
+
+### ¿Por qué `useEffect` con dependencia `[xp]` y no `[]`?
+
+Con `[]` el efecto solo correría **una vez al montar**, guardando el XP inicial (0). Nunca se volvería a guardar. Con `[xp]`, cada vez que el XP cambia, el efecto corre y sincroniza con `localStorage`.
+
+### ¿Por qué `try/catch` en ambos lugares?
+
+Porque `localStorage` puede fallar:
+- **Modo incógnito** de Safari: `localStorage` existe pero lanza error al escribir.
+- **Cuota excedida**: si guardas 10 MB, el navegador dice "no más".
+- **Datos corruptos**: alguien editó el JSON a mano y rompió la sintaxis.
+
+Sin `try/catch`, un error en `localStorage` crashea la app. Con `try/catch`, la app sigue funcionando (sin persistir datos, pero funciona).
+
+### ¿Por qué el hook retorna un objeto `{ xp, addXp }` y no un array `[xp, addXp]`?
+
+Convención de custom hooks:
+- Si retornas **2 valores relacionados** (como `useState`), usa array: `const [value, setValue] = useState()`.
+- Si retornas **múltiples valores no simétricamente relacionados** (datos + funciones + flags), usa objeto: `const { xp, addXp, isLoading } = useProgress()`.
+
+El objeto permite desestructuración con nombres claros. Si retornaras array, el llamador tendría que recordar el orden.
+
+## ⚠️ Errores comunes con `useEffect`
+
+| Síntoma | Causa | Arreglo |
+|---|---|---|
+| El efecto corre infinitamente | Actualizas una dependencia dentro del efecto | No modifiques las dependencias dentro del efecto |
+| `localStorage` se guarda mal | Guardas el objeto directo sin `JSON.stringify` | Siempre `JSON.stringify` antes de guardar |
+| El efecto no corre al cambiar el estado | Olvidaste poner la variable en el array de dependencias | Añade `[xp]` |
+| El efecto corre en cada render | No pusiste array de dependencias | Añade `[]` o `[deps]` |
+
+## 🏋️ Ejercicio
+
+1. Añade un botón "Resetear progreso" en `App.jsx` que llame a una nueva función `resetProgress` del hook. La función debe hacer `setXp(0)` — el `useEffect` sincronizará con `localStorage` automáticamente.
+2. Modifica `useProgress` para guardar también un array de `completedLessons: []`. Expón una función `markLessonComplete(lessonId)` que añada el ID al array. Verifica en DevTools que se guarda.
+3. **Pregunta de diseño**: si el usuario abre la app en dos pestañas a la vez y gana XP en ambas, ¿qué pasa? ¿Se sincronizan? ¿Se pierden datos?
+   <details><summary>💡 Respuesta</summary>
+   **No se sincronizan automáticamente.** Cada pestaña tiene su propia instancia del hook. Si ganas 10 XP en pestaña A y 20 XP en pestaña B, la última en guardar (digamos B) sobrescribe todo con su valor (`xp: 20`), perdiendo los 10 de A. Para sincronizar entre pestañas necesitas escuchar el evento `storage` del navegador — tema avanzado que veremos en la Lección 9.
+   </details>
+
+---
+
+# Lección 6 — Lifting state up (subir el estado al padre)
+
+## 🎯 Objetivo
+
+Conectar el XP real de los quizzes en lugar de sumar +10 por cada paso. Vas a aprender **por qué** el estado a veces debe "subir" al componente padre y cómo pasar callbacks para que los hijos reporten eventos hacia arriba.
+
+## 💡 Concepto clave: el estado vive donde se necesita compartir
+
+Cuando **dos o más componentes necesitan el mismo estado**, ese estado debe vivir en el **ancestro común más cercano** y bajarse por props.
+
+```
+App  ← el XP vive aquí (useProgress)
+ └─ LessonFlow  ← recibe onEarnXp por prop
+     └─ CookingScreen  ← reporta XP ganado llamando a onEarnXp(20)
+```
+
+Si `CookingScreen` guardara su propio XP con `useState`, ese XP moriría al cambiar de pantalla. Si `LessonFlow` lo guarda, muere al cambiar de lección. Si `App` lo guarda, **persiste en toda la app** y puede mostrarse en un navbar global, en el perfil, etc.
+
+> **Analogía**: el estado es como el dinero. Si cada hijo guarda su propio dinero en su bolsillo, no pueden compartirlo. Si el padre lo guarda en una cuenta bancaria familiar, todos pueden depositar (callbacks) y el saldo se actualiza para todos.
+
+Esta es la aplicación del patrón **"data down, events up"** a una escala mayor:
+- **Datos bajan**: `App` le pasa `xp` y `onEarnXp` a `LessonFlow`.
+- **Eventos suben**: `LessonFlow` (y sus hijos) llaman a `onEarnXp(points)` cuando algo pasa.
+
+## 🛠️ Manos a la obra
+
+### Paso 1 — Estado actual del XP en la app
+
+Ahora mismo:
+- `App.jsx` usa `useProgress()` y tiene el XP total.
+- `LessonFlow` reporta +10 XP por cada paso (hardcodeado en `next()`).
+
+**Problema**: el XP debería venir del `cookingStep.xp` real, no de un número inventado. Pero `LessonFlow` solo conoce el `step` actual (1-5), no sabe qué `cookingStep` específico se completó.
+
+**Solución**: cuando construyamos `CookingScreen` (pantalla 4/5) en la Tanda 4, esa pantalla sabrá exactamente qué quiz se respondió y cuánto XP otorga. Pero por ahora podemos simular el flujo correcto.
+
+### Paso 2 — Simular XP variable por paso
+
+Vamos a hacer que cada paso otorgue XP distinto, para ver el flujo de datos en acción.
+
+```jsx
+// src/components/lesson/LessonFlow.jsx
+import { useState } from "react";
+import { WelcomeScreen } from "./WelcomeScreen";
+import { TOTAL_SCREENS } from "../../data/lessons";
+
+// XP por pantalla (simulado — en la Tanda 4 vendrá de lesson.cookingSteps[i].xp)
+const XP_PER_SCREEN = {
+  1: 0,   // Bienvenida: sin XP
+  2: 15,  // Ingredientes: 15 XP por completar la compra
+  3: 10,  // Prep: 10 XP por ordenar correctamente
+  4: 40,  // Cocina: 40 XP de los quizzes (suma de todos los pasos)
+  5: 10,  // Resultados: 10 XP bonus por completar
+};
+
+export function LessonFlow({ lesson, onEarnXp }) {
+  const [step, setStep] = useState(1);
+
+  const next = () => {
+    const nextStep = Math.min(TOTAL_SCREENS, step + 1);
+    setStep(nextStep);
+
+    // Otorga el XP correspondiente a la pantalla a la que acabamos de avanzar
+    const xpEarned = XP_PER_SCREEN[nextStep] || 0;
+    if (xpEarned > 0) {
+      onEarnXp(xpEarned);
+    }
+  };
+
+  const prev = () => setStep((s) => Math.max(1, s - 1));
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center gap-3">
+        <div className="flex-1 h-1.5 rounded-full bg-stone-200">
+          <div
+            className="h-full rounded-full bg-amber transition-all duration-300"
+            style={{ width: `${(step / TOTAL_SCREENS) * 100}%` }}
+          />
+        </div>
+        <span className="text-xs text-stone-400 tabular-nums">
+          {step} / {TOTAL_SCREENS}
+        </span>
+      </div>
+
+      {step === 1 && <WelcomeScreen lesson={lesson} onStart={next} />}
+      {step === 2 && <PlaceholderScreen title="🛒 Compra los ingredientes" onNext={next} onPrev={step > 1 ? prev : null} />}
+      {step === 3 && <PlaceholderScreen title="📋 Prepara los ingredientes" onNext={next} onPrev={prev} />}
+      {step === 4 && <PlaceholderScreen title="🍳 ¡Hagamos el platillo!"    onNext={next} onPrev={prev} />}
+      {step === 5 && <PlaceholderScreen title="🎉 ¡Lección completada!"     onNext={null} onPrev={prev} />}
+    </div>
+  );
+}
+
+function PlaceholderScreen({ title, onNext, onPrev }) {
+  return (
+    <div className="mt-6 space-y-4 rounded-3xl border-2 border-dashed border-stone-300 p-8 text-center">
+      <p className="font-display text-2xl font-bold text-stone-700">{title}</p>
+      <p className="text-sm text-stone-400">Esta pantalla se construye en la próxima tanda.</p>
+      <div className="flex gap-3 pt-2">
+        {onPrev && (
+          <button onClick={onPrev} className="flex-1 rounded-2xl border border-stone-300 py-3 text-stone-600 hover:bg-stone-100">
+            ← Atrás
+          </button>
+        )}
+        {onNext && (
+          <button onClick={onNext} className="flex-1 rounded-2xl bg-forest py-3 font-bold text-white hover:bg-forest-dark">
+            Siguiente →
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+### Paso 3 — Mejorar la UI de `App.jsx` para mostrar el XP
+
+```jsx
+// src/App.jsx
+import { getLesson } from "./data/lessons";
+import { LessonFlow } from "./components/lesson/LessonFlow";
+import { useProgress } from "./hooks/useProgress";
+
+export default function App() {
+  const lesson = getLesson("overnight-oats");
+  const { xp, addXp } = useProgress();
+
+  return (
+    <main className="mx-auto min-h-screen max-w-md bg-cream px-5 py-6">
+      
+      {/* Header con XP total del usuario */}
+      <header className="mb-6 rounded-2xl bg-white p-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-stone-400">Tu progreso</p>
+            <p className="font-display text-2xl font-bold text-forest">
+              ✨ {xp} XP
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-stone-400">Nivel</p>
+            <p className="font-display text-2xl font-bold text-amber">
+              {Math.floor(xp / 100) + 1}
+            </p>
+          </div>
+        </div>
+        {/* Barra de nivel: cada 100 XP es un nivel */}
+        <div className="mt-2 h-2 rounded-full bg-stone-100">
+          <div
+            className="h-full rounded-full bg-amber transition-all duration-500"
+            style={{ width: `${(xp % 100)}%` }}
+          />
+        </div>
+      </header>
+
+      <LessonFlow lesson={lesson} onEarnXp={addXp} />
+    </main>
+  );
+}
+```
+
+### Paso 4 — Probarlo
+
+1. Recarga la app. Deberías ver el header con "0 XP · Nivel 1".
+2. Avanza a la pantalla 2: ganas 15 XP (la barra de nivel sube 15%).
+3. Avanza a la 3: +10 XP (total 25 XP).
+4. Avanza a la 4: +40 XP (total 65 XP).
+5. Avanza a la 5: +10 XP (total 75 XP).
+6. Recarga la página: el XP persiste. 🎉
+
+## 🤔 Decisión de diseño
+
+### ¿Por qué `onEarnXp` se llama dentro de `next()` y no al final de cada pantalla?
+
+Porque el XP se gana **por completar** la pantalla, no por verla. El momento en que haces click en "Siguiente" es cuando demuestras que completaste la pantalla actual. Si llamaras `onEarnXp` al montar la pantalla, ganarías XP solo por llegar, sin hacer nada.
+
+En la pantalla 4/5 real (quizzes), el XP se ganará **al responder correctamente**, no al avanzar. Pero en las pantallas sin quiz (compra, prep), "avanzar" es el indicador de completitud.
+
+### ¿Por qué `XP_PER_SCREEN` es un objeto y no un array?
+
+```js
+// ❌ Array: dependes del índice
+const XP_PER_SCREEN = [0, 15, 10, 40, 10];
+const xp = XP_PER_SCREEN[step - 1]; // -1 porque step empieza en 1
+
+// ✅ Objeto: el step es la clave directa
+const XP_PER_SCREEN = { 1: 0, 2: 15, 3: 10, 4: 40, 5: 10 };
+const xp = XP_PER_SCREEN[step];
+```
+
+El objeto es más legible: ves `4: 40` y sabes "la pantalla 4 otorga 40 XP". Con array necesitas contar posiciones. Y si algún día empiezas los pasos en 0 en lugar de 1, el objeto no se rompe.
+
+### ¿Por qué el nivel se calcula como `Math.floor(xp / 100) + 1`?
+
+- 0-99 XP → Nivel 1
+- 100-199 XP → Nivel 2
+- 200-299 XP → Nivel 3
+
+La fórmula: `Math.floor(xp / 100)` da 0, 1, 2… sumamos +1 para que empiece en Nivel 1. Es una progresión lineal simple. Si quisieras progresión exponencial (cada nivel necesita más XP que el anterior), la fórmula sería distinta, pero la lógica de derivarlo del XP total es la misma.
+
+### ¿Por qué el estado del XP vive en `App` y no en `LessonFlow`?
+
+Porque el XP es **global del usuario**, no local de una lección. Cuando termines la lección de Overnight Oats y empieces Lentejas Guisadas, el XP debe seguir ahí. Si viviera en `LessonFlow`, al destruir ese componente para montar uno nuevo (otra lección), el XP se perdería.
+
+Además, en la Tanda 4 añadirás un navbar con el XP visible en todas las rutas. El navbar es hermano de `LessonFlow`, no su hijo. El XP debe vivir en el ancestro común: `App`.
+
+## 🏋️ Ejercicio
+
+1. Modifica `XP_PER_SCREEN` para que la pantalla 4 otorgue XP variable basado en `lesson.totalXp` (usa `lesson.totalXp` en lugar de 40 hardcodeado). Pasa `lesson` como prop a `LessonFlow` — ya lo tienes.
+2. Añade un botón "Reiniciar lección" en la pantalla 5 que haga `setStep(1)` sin otorgar XP. ¿Puedes avanzar de nuevo y ganar XP otra vez? ¿Debería ser así?
+3. **Pregunta de diseño**: si quisieras que cada lección solo se pueda completar una vez (no ganar XP infinito repitiéndola), ¿dónde guardarías el array de `completedLessons`? ¿En `LessonFlow` o en `useProgress`?
+   <details><summary>💡 Respuesta</summary>
+   En `useProgress`. Si guardas `completedLessons` en `LessonFlow`, cada lección tendría su propio array (sin sentido). El hook debe exponer `markLessonComplete(lessonId)` y al intentar completar una lección ya completada, `addXp` no hace nada. El chequeo: `if (!completedLessons.includes(lessonId)) { markComplete(lessonId); addXp(points); }`.
+   </details>
+
+---
+
+# 🛑 Pausa — Fin de la Tanda 3
+
+Ya sabes:
+
+- ✅ Crear custom hooks con `useState` + `useEffect`
+- ✅ Persistir datos en `localStorage` automáticamente
+- ✅ Lazy initialization para optimizar lecturas pesadas
+- ✅ El ciclo de vida de `useEffect` y sus dependencias
+- ✅ Lifting state up: cuándo el estado debe vivir en el padre
+- ✅ El patrón "data down, events up" a escala de app
+
+**Logros desbloqueados:**
+
+- El XP persiste entre sesiones.
+- Puedes ver tu nivel y progreso global.
+- El estado vive donde debe vivir (no duplicado).
+
+**Antes de la Tanda 4**, verifica que:
+
+1. El XP se guarda en `localStorage` y persiste al recargar.
+2. El header muestra el XP total y el nivel calculado.
+3. Cada pantalla otorga XP distinto (15, 10, 40, 10).
+4. Puedes resetear el progreso y volver a empezar.
+
+Cuando estés listo, escribe **"sigue"** y arranco la **Tanda 4**: Tailwind v4 con `@theme` para el sistema de diseño completo (L7) y React Router DOM v6 para navegación entre Home, Lecciones, Perfil (L8).
+
+> ❓ Si `useEffect` o el flujo de datos padre→hijo no quedó claro, pregunta ahora.
