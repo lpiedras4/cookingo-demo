@@ -1,22 +1,14 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import RootLayout from "./_root/RootLayout";
-import SidebarComponent from "./components/ui/SidebarComponent";
-import Home from "./_root/pages/Home";
-import Profile from "./_root/pages/Profile";
+import { getLesson } from "./data/lessons";
+import LessonFlow from "./components/lesson/LessonFlow";
+
 
 const App = () => {
+  const lesson = getLesson("overnight-oats");
   return (
-    <div>
-      <main className="main-content">
-        <Routes>
-          <Route path="/" element={<RootLayout />}>
-          <Route index element={<Home />} />
-          <Route path="/perfil" element={<Profile />} />
-          </Route>
-        </Routes>
-      </main>
-    </div>
+   <main className="mx-auto min-h-screen max-w-md bg-cream px-5 py-6">
+   <LessonFlow lesson ={lesson}/>
+    </main>
   );
 };
 
