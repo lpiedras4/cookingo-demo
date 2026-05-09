@@ -95,7 +95,7 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
 function PlaceholderScreen({ title, onNext, onPrev}) {
   return (
     <div className="mt-6 space-y-4 rounded-3xl border-2 border-dashed border-stone-300 p-8 text-center">
-      <p className="font-display text-2xl font-bold text-stone-700">{title}</p>
+      <h2 className="font-display text-2xl font-bold text-stone-700">{title}</h2>
       <p className="text-sm text-stone-400">
         Esta pantalla se construye en la próxima tanda.
       </p>

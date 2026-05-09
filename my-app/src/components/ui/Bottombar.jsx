@@ -1,15 +1,31 @@
-import React from 'react'
 import { NavLink } from "react-router-dom";
+
 const Bottombar = () => {
   return (
-    <div>
-      <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around border-t border-stone-200 bg-white py-3 shadow-nav md:hidden">
-        <NavItem href="/" icon="🏠" label="Inicio" isMobile />
-        <NavItem href="/recipes" icon="📖" label="Recetas" isMobile />
-        <NavItem href="/profile" icon="👤" label="Perfil" isMobile />
+    <nav className="fixed bottom-0 bg-forest left-0 right-0 flex items-center justify-around border-t border-stone-200 py-3 shadow-nav md:hidden">
+        <NavItem to="/" icon="🏠" label="Inicio" isMobile />
+        <NavItem to="/profile" icon="👤" label="Perfil" isMobile />
+        <NavItem to="/recipes" icon="🧂" label="Recetas" isMobile/>
       </nav>
-    </div>
-  )
+  );
+}
+
+function NavItem({ to, icon, label, isMobile = false }) {
+  if (isMobile) {
+    return (
+      <NavLink
+        to={to}
+        className={({ isActive }) =>
+          `flex flex-col items-center gap-1 transition-colors ${
+            isActive ? "text-forest" : "text-stone-400"
+          }`
+        }
+      >
+        <span className="text-xl" aria-hidden="true">{icon}</span>
+        <span className="text-xs font-medium">{label}</span>
+      </NavLink>
+    );
+  }
 }
 
 export default Bottombar

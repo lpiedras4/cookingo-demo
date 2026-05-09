@@ -9,7 +9,7 @@ const WelcomeScreen = ({lesson, onStart}) => {
     <section className="space-y-5">
       {/*Hero de la presentación de la lección */}
       <div className="rounded-3xl bg-amber p-5">
-        <h1 className="text-3xl font-bold leading-tight text-stone-900">
+        <h1 className="text-3xl font-bold font-dsiplay leading-tight text-stone-900">
           {lesson.name}
         </h1>
         <p className="mt-1 text-sm text text-stone-800">{lesson.description}</p>

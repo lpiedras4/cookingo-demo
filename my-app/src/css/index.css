@@ -10,8 +10,11 @@
   --color-orange-dark: #d4601a; /* hover de tiles */
 
   /*Tipografía */
-  --font-display: "Fraunces";
-  --font-body: "Nunito", sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Nunito",ui-sans-serif, system-ui, sans-serif;
+
+  --spacing-18:4.5rem;
+  --spacing-20: 5rem;  
 
   /*ESPACIADO */
   --radius-xl: 1rem;
@@ -38,6 +41,11 @@ html{
   scroll-behavior: smooth;
 }
 
+html,body{
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 .hide-scrollbar {
   -ms-overflow-style: none;  /* IE y Edge */
   scrollbar-width: none;     /* Firefox */
@@ -45,4 +53,9 @@ html{
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }

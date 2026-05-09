@@ -17,6 +17,31 @@ Una app web responsiva (mobile-first) que enseña recetas saludables a través d
 
 ---
 
+## 👥 Nota sobre división de trabajo
+
+Esta guía está diseñada para **trabajo en equipo**. Si estás siguiéndola con un compañero:
+
+**PERSONA A (flujo de lecciones):**
+- `src/components/lesson/*` — todas las pantallas de lección (Welcome, Ingredients, Prep, Cooking, Results)
+- `src/pages/LessonPage.jsx` — página que orquesta el flujo
+- Ruta: `/lesson/:lessonId`
+
+**PERSONA B (páginas principales):**
+- `src/pages/Home.jsx` — dashboard principal
+- `src/pages/Profile.jsx` — perfil del usuario
+- `src/components/layout/AppShell.jsx` — sidebar y bottom nav
+- Rutas: `/` y `/profile`
+
+**ARCHIVOS COMPARTIDOS** (requieren coordinación):
+- `src/App.jsx` — configuración de rutas
+- `src/data/lessons.js` — datos de recetas
+- `src/hooks/useProgress.js` — sistema de XP
+- `src/index.css` — design tokens
+
+Si trabajas solo, sigue la guía completa. Si trabajas en equipo, las Lecciones 7-8 ya incluyen notas de coordinación.
+
+---
+
 ## 🎨 Referencia visual — Las 5 pantallas del flujo de lección
 
 Cada lección tiene exactamente **5 pantallas** en este orden:
