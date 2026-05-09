@@ -6,17 +6,36 @@ import { TOTAL_SCREENS } from "../../data/lessons";
 /*
 Orquesta el flujo de 5 pantallas de una lección
 Este componente sabe en qué paso estamos
-@param  {{ lesson: import("../../data/lessons").Lesson }} props
-*/
+/**
+ * @param {{ 
+ *   lesson: import("../../data/lessons").Lesson,
+ *   onEarnXp: (points: number) => void  //  callback para reportar XP ganado
+ * }} props
+ */
 
-const LessonFlow = ({ lesson }) => {
+const XP_PER_SCREEN = { // XP otorgado por pantalla
+  1:0,    // Bienvenida: sin XP
+  2: 15,  // Ingredientes: 15 XP por completar la compra
+  3: 10,  // Prep: 10 XP por ordenar correctamente
+  4: 40,  // Cocina: 40 XP de los quizzes (suma de todos los pasos)
+  5: 10,  // Resultados: 10 XP bonus por completar
+ 
+};
+
+
+const LessonFlow = ({ lesson, onEarnXp }) => {
   const [step, setStep] = useState(1);
-  const [xp, setXP] = useState(0);
+  
   const next = () => {
-    setStep((s) =>  Math.min(TOTAL_SCREENS, s + 1));
-    setXP((currXP) => currXP + 10);
-    
+    const nextStep = Math.min(TOTAL_SCREENS, step + 1);
+    setStep(nextStep);
+    //otorga el XP correspondiente a la pantalla que se acaba de avanzar.
+    const xpEarned = XP_PER_SCREEN[nextStep] || 0;
+    if (xpEarned > 0){
+      onEarnXp(xpEarned);
+    }
   };
+
 
   const prev = () => setStep((s) => Math.max(1, s - 1));
 
@@ -34,9 +53,7 @@ const LessonFlow = ({ lesson }) => {
           {step} / {TOTAL_SCREENS}
         </span>
 
-        <span className="text-xs font-semibold text-amber-dark tabular-nums">
-          ✨ {xp} XP
-        </span>
+  
       </div>
 
       {/**Una sola pantalla visible a la vez */}
@@ -72,13 +89,13 @@ const LessonFlow = ({ lesson }) => {
       )}
     </div>
   );
-}
+};
 
 /*Placeholder temporal - se reemplazará pantalla por pantalla */
-function PlaceholderScreen({ title, onNext, onPrev, isFirstStep = false}) {
+function PlaceholderScreen({ title, onNext, onPrev}) {
   return (
     <div className="mt-6 space-y-4 rounded-3xl border-2 border-dashed border-stone-300 p-8 text-center">
-      <p className="font-display text-2xl font-bold text-stone-700">{title}</p>
+      <h2 className="font-display text-2xl font-bold text-stone-700">{title}</h2>
       <p className="text-sm text-stone-400">
         Esta pantalla se construye en la próxima tanda.
       </p>
@@ -86,11 +103,11 @@ function PlaceholderScreen({ title, onNext, onPrev, isFirstStep = false}) {
         {onPrev && (
           <button
             onClick={onPrev}
-            disabled={isFirstStep}
+           
             className={`
               flex-1 rounded-2xl border border-stone-300 py-3 text-stone-600 
               hover:bg-stone-100 transition-all
-              ${isFirstStep ? 'opacity-40 cursor-not-allowed' : ''} 
+              
             `}
           >
             ← Atrás

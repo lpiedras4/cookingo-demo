@@ -17,6 +17,31 @@ Una app web responsiva (mobile-first) que enseña recetas saludables a través d
 
 ---
 
+## 👥 Nota sobre división de trabajo
+
+Esta guía está diseñada para **trabajo en equipo**. Si estás siguiéndola con un compañero:
+
+**PERSONA A (flujo de lecciones):**
+- `src/components/lesson/*` — todas las pantallas de lección (Welcome, Ingredients, Prep, Cooking, Results)
+- `src/pages/LessonPage.jsx` — página que orquesta el flujo
+- Ruta: `/lesson/:lessonId`
+
+**PERSONA B (páginas principales):**
+- `src/pages/Home.jsx` — dashboard principal
+- `src/pages/Profile.jsx` — perfil del usuario
+- `src/components/layout/AppShell.jsx` — sidebar y bottom nav
+- Rutas: `/` y `/profile`
+
+**ARCHIVOS COMPARTIDOS** (requieren coordinación):
+- `src/App.jsx` — configuración de rutas
+- `src/data/lessons.js` — datos de recetas
+- `src/hooks/useProgress.js` — sistema de XP
+- `src/index.css` — design tokens
+
+Si trabajas solo, sigue la guía completa. Si trabajas en equipo, las Lecciones 7-8 ya incluyen notas de coordinación.
+
+---
+
 ## 🎨 Referencia visual — Las 5 pantallas del flujo de lección
 
 Cada lección tiene exactamente **5 pantallas** en este orden:
@@ -58,10 +83,10 @@ Cada lección tiene exactamente **5 pantallas** en este orden:
 | 2 | [Modelado de datos](#lección-2--modelado-de-datos-en-javascript) | Objetos, arrays, JSDoc | 🟢 Tanda 1 |
 | 3 | [Componentes y props](#lección-3--componentes-y-props) | Composición, props | 🟢 Tanda 2 |
 | 4 | [`useState` y máquina de pasos](#lección-4--usestate-y-máquina-de-pasos) | Estado local | 🟢 Tanda 2 |
-| 5 | [Custom hook `useProgress`](#lección-5) | `useEffect`, hooks | ⏳ Tanda 3 |
-| 6 | [Lifting state up](#lección-6) | Callbacks padre-hijo | ⏳ Tanda 3 |
-| 7 | [Tailwind v4 con `@theme`](#lección-7) | Design tokens | ⏳ Tanda 4 |
-| 8 | [React Router DOM v6](#lección-8) | Rutas y navegación | ⏳ Tanda 4 |
+| 5 | [Custom hook `useProgress`](#lección-5--custom-hook-useprogress-useeffect--localstorage) | `useEffect`, hooks | 🟢 Tanda 3 |
+| 6 | [Lifting state up](#lección-6--lifting-state-up-subir-el-estado-al-padre) | Callbacks padre-hijo | 🟢 Tanda 3 |
+| 7 | [Tailwind v4 con `@theme`](#lección-7--tailwind-v4-con-theme-sistema-de-diseño-completo) | Design tokens | 🟢 Tanda 4 |
+| 8 | [React Router DOM v6](#lección-8--react-router-dom-v6-navegación-entre-páginas) | Rutas y navegación | 🟢 Tanda 4 |
 | 9 | [Persistencia avanzada y edge cases](#lección-9) | localStorage robusto | ⏳ Tanda 5 |
 | 10 | [Build, deploy y siguientes pasos](#lección-10) | Producción | ⏳ Tanda 5 |
 
@@ -73,9 +98,9 @@ Cada lección tiene exactamente **5 pantallas** en este orden:
 |---|---|---|
 | 1 | L1 Setup Vite + React + Tailwind v4 · L2 Modelado de datos | ✅ Hecha |
 | 2 | L3 Componentes y props · L4 `useState` y máquina de pasos | ✅ Hecha |
-| 3 | L5 Custom hook `useProgress` · L6 Lifting state up | ⏳ Siguiente |
-| 4 | L7 Tailwind v4 con `@theme` · L8 React Router DOM v6 | ⏳ Pendiente |
-| 5 | L9 Persistencia avanzada · L10 Build, deploy y siguientes pasos | ⏳ Pendiente |
+| 3 | L5 Custom hook `useProgress` · L6 Lifting state up | ✅ Hecha |
+| 4 | L7 Tailwind v4 con `@theme` · L8 React Router DOM v6 | ✅ Hecha |
+| 5 | L9 Persistencia avanzada · L10 Build, deploy y siguientes pasos | ⏳ Siguiente |
 
 ---
 
@@ -1409,3 +1434,645 @@ Ya sabes:
 Cuando estés listo, escribe **"sigue"** y arranco la **Tanda 4**: Tailwind v4 con `@theme` para el sistema de diseño completo (L7) y React Router DOM v6 para navegación entre Home, Lecciones, Perfil (L8).
 
 > ❓ Si `useEffect` o el flujo de datos padre→hijo no quedó claro, pregunta ahora.
+
+---
+
+# 🎨 Tanda 4 — Sistema de diseño y navegación
+
+Hasta ahora todo vive en una sola "página". En esta tanda vas a construir el shell de la app (sidebar + bottom nav) y agregar rutas para Home, Lecciones y Perfil.
+
+---
+
+# Lección 7 — Tailwind v4 con `@theme` (sistema de diseño completo)
+
+## 🎯 Objetivo
+
+Expandir el sistema de tokens de Tailwind v4 con espaciados, radios, sombras y construir el `AppShell` — el componente que envuelve toda la app con sidebar en desktop y bottom nav en móvil. Al terminar entenderás cómo los design tokens hacen que cambiar el look completo de la app tome 5 minutos.
+
+## 💡 Concepto clave: design tokens como fuente de verdad visual
+
+Los **design tokens** son variables de diseño (colores, espaciados, tipografía, sombras) definidas en un solo lugar y usadas en toda la app. Cambias un token, se propaga a 50 componentes. Sin tokens, harías find-replace de `#1B5C3E` en 50 archivos.
+
+En Tailwind v4, los tokens viven en el bloque `@theme` de tu CSS, no en un archivo JS de configuración. Ventajas:
+
+1. **Variables CSS nativas** — funcionan con cualquier librería, no solo Tailwind.
+2. **Hot reload instantáneo** — cambias un color, el navegador actualiza sin recompilar.
+3. **Typed automáticamente** — el plugin de Vite genera las clases (`bg-forest`, `text-amber`) al vuelo.
+
+> **Analogía**: los tokens son como las constantes en programación. `const PRIMARY_COLOR = "#1B5C3E"` una vez, usas `PRIMARY_COLOR` mil veces. Si hardcodeas `#1B5C3E` mil veces, el día que cambias de color pasas 3 horas con find-replace rogando no romper nada.
+
+## 🛠️ Manos a la obra
+
+### Paso 1 — Expandir `@theme` en `src/index.css`
+
+Ya tienes colores y fuentes. Ahora añade espaciados, radios, sombras, breakpoints custom:
+
+```css
+@import "tailwindcss";
+
+@theme {
+  /* ===== COLORES ===== */
+  --color-cream:        #F5E3C8;
+  --color-forest:       #1B5C3E;
+  --color-forest-dark:  #144A31;
+  --color-forest-light: #2A7A54; /* para hover de links */
+  --color-amber:        #F5A623;
+  --color-amber-dark:   #E09410;
+  --color-orange:       #E8843A;
+  --color-orange-dark:  #D4601A;
+  
+  /* ===== TIPOGRAFÍA ===== */
+  --font-display: "Plus Jakarta Sans", sans-serif;
+  --font-body:    "Inter", sans-serif;
+  
+  /* ===== ESPACIADO ===== */
+  /* Tailwind usa una escala de 4px (1 = 0.25rem = 4px).
+     Sobrescribimos algunos valores para el look de la app. */
+  --spacing-18: 4.5rem;  /* 72px — altura del sidebar */
+  --spacing-20: 5rem;    /* 80px — altura del bottom nav móvil */
+  
+  /* ===== BORDER RADIUS ===== */
+  /* Usamos radios grandes para el look "friendly" de la app */
+  --radius-xl:  1rem;    /* 16px — cards pequeñas */
+  --radius-2xl: 1.5rem;  /* 24px — cards medianas */
+  --radius-3xl: 2rem;    /* 32px — hero cards */
+  
+  /* ===== SOMBRAS ===== */
+  /* Sombras sutiles para dar profundidad sin ser intrusivas */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-nav:  0 -2px 8px rgba(0, 0, 0, 0.06);
+  
+  /* ===== BREAKPOINTS ===== */
+  /* Tailwind ya tiene sm:640 md:768 lg:1024 xl:1280.
+     Añadimos uno custom para el switch sidebar ↔ bottom nav */
+  --breakpoint-nav: 768px; /* a partir de aquí, sidebar; antes, bottom nav */
+}
+
+/* ===== ESTILOS GLOBALES ===== */
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-cream);
+  color: #292524; /* stone-800 */
+}
+
+/* Smooth scroll para anclas */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ocultar scrollbar en listas horizontales (ingredientes, etc.) pero mantener scroll */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE y Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+```
+
+### Paso 2 — Crear `src/components/layout/AppShell.jsx`
+
+Este componente envuelve toda la app. Muestra sidebar en desktop, bottom nav en móvil.
+
+```jsx
+// src/components/layout/AppShell.jsx
+import { NavLink } from "react-router-dom"; // usaremos esto en la L8
+
+/**
+ * Shell de la app: sidebar (desktop) o bottom nav (móvil).
+ * Los hijos se renderizan en el área de contenido.
+ */
+export function AppShell({ children }) {
+  return (
+    <div className="min-h-screen">
+      
+      {/* SIDEBAR — visible solo en md: (≥768px) */}
+      <aside className="fixed left-0 top-0 hidden h-screen w-18 flex-col items-center bg-forest py-6 md:flex">
+        <nav className="flex flex-col gap-6">
+          <NavItem href="/" icon="🏠" label="Inicio" />
+          <NavItem href="/recipes" icon="📖" label="Recetas" />
+          <NavItem href="/profile" icon="👤" label="Perfil" />
+        </nav>
+      </aside>
+
+      {/* CONTENIDO PRINCIPAL */}
+      {/* En desktop: margen izquierdo de 72px (ancho del sidebar).
+          En móvil: sin margen, pero padding-bottom de 80px (altura del bottom nav) */}
+      <main className="pb-20 md:ml-18 md:pb-0">
+        {children}
+      </main>
+
+      {/* BOTTOM NAV — visible solo en móvil (< md:) */}
+      <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around border-t border-stone-200 bg-white py-3 shadow-nav md:hidden">
+        <NavItem href="/" icon="🏠" label="Inicio" isMobile />
+        <NavItem href="/recipes" icon="📖" label="Recetas" isMobile />
+        <NavItem href="/profile" icon="👤" label="Perfil" isMobile />
+      </nav>
+
+    </div>
+  );
+}
+
+/**
+ * Item de navegación. Funciona tanto en sidebar como en bottom nav.
+ */
+function NavItem({ href, icon, label, isMobile = false }) {
+  // Por ahora usamos <a> simple; en L8 lo cambiaremos a NavLink de react-router
+  const isActive = window.location.pathname === href; // temporal — react-router lo hará mejor
+
+  if (isMobile) {
+    return (
+      <a
+        href={href}
+        className={`flex flex-col items-center gap-1 transition-colors ${
+          isActive ? "text-forest" : "text-stone-400"
+        }`}
+      >
+        <span className="text-xl" aria-hidden="true">{icon}</span>
+        <span className="text-xs font-medium">{label}</span>
+      </a>
+    );
+  }
+
+  // Sidebar (desktop)
+  return (
+    <a
+      href={href}
+      className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
+        isActive
+          ? "bg-forest-light text-white"
+          : "text-white/60 hover:bg-forest-dark hover:text-white"
+      }`}
+      title={label}
+    >
+      <span className="text-2xl" aria-hidden="true">{icon}</span>
+    </a>
+  );
+}
+```
+
+### Paso 3 — Usar `AppShell` en `App.jsx`
+
+```jsx
+// src/App.jsx
+import { getLesson } from "./data/lessons";
+import { LessonFlow } from "./components/lesson/LessonFlow";
+import { useProgress } from "./hooks/useProgress";
+import { AppShell } from "./components/layout/AppShell"; // 👈 nuevo
+
+export default function App() {
+  const lesson = getLesson("overnight-oats");
+  const { xp, addXp } = useProgress();
+
+  return (
+    <AppShell>
+      {/* Todo el contenido va envuelto en AppShell */}
+      <div className="mx-auto max-w-md px-5 py-6">
+        
+        {/* Header con XP */}
+        <header className="mb-6 rounded-2xl bg-white p-4 shadow-card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-stone-400">Tu progreso</p>
+              <p className="font-display text-2xl font-bold text-forest">
+                ✨ {xp} XP
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-stone-400">Nivel</p>
+              <p className="font-display text-2xl font-bold text-amber">
+                {Math.floor(xp / 100) + 1}
+              </p>
+            </div>
+          </div>
+          <div className="mt-2 h-2 rounded-full bg-stone-100">
+            <div
+              className="h-full rounded-full bg-amber transition-all duration-500"
+              style={{ width: `${(xp % 100)}%` }}
+            />
+          </div>
+        </header>
+
+        <LessonFlow lesson={lesson} onEarnXp={addXp} />
+      </div>
+    </AppShell>
+  );
+}
+```
+
+### Paso 4 — Probarlo
+
+1. En **desktop** (pantalla ≥ 768px): deberías ver el sidebar verde a la izquierda con 3 íconos.
+2. En **móvil** (< 768px): el sidebar desaparece, aparece el bottom nav blanco pegado abajo.
+3. Redimensiona la ventana del navegador — el cambio entre sidebar y bottom nav es instantáneo.
+
+Abre DevTools → Toggle device toolbar (Cmd+Shift+M / Ctrl+Shift+M) para probar en tamaño móvil sin redimensionar la ventana.
+
+## 🤔 Decisión de diseño
+
+### ¿Por qué `md:ml-18` en el `<main>` y no un padding?
+
+```css
+/* ❌ Padding: el contenido se "encoge" */
+main { padding-left: 72px; }
+
+/* ✅ Margin: el contenido se "desplaza", mantiene su ancho */
+main { margin-left: 72px; }
+```
+
+Con padding, el contenido interior tiene menos espacio. Con margin, el contenido mantiene su ancho natural y solo se desplaza. Para un sidebar fijo, margin es la convención.
+
+### ¿Por qué `w-18` (72px) de ancho en el sidebar?
+
+Es el mínimo para que un ícono de 24px + padding de 12px a cada lado entre cómodamente:
+
+```
+| 12px | 🏠 (24px) | 12px | → total 48px
+```
+
+Pero 48px se siente apretado. 72px da aire y es divisible por 4 (escala de Tailwind). Si quieres sidebar con texto ("Inicio" completo), necesitas `w-64` (256px).
+
+### ¿Por qué `hidden md:flex` en el sidebar y no `display: none` directo?
+
+Tailwind usa **mobile-first**: las clases sin prefijo aplican a todos los tamaños, los prefijos (`md:`) sobrescriben a partir de ese breakpoint.
+
+```jsx
+// hidden → display: none en móvil
+// md:flex → display: flex a partir de 768px
+className="hidden md:flex"
+```
+
+Es más legible que escribir media queries a mano en CSS.
+
+### ¿Por qué `pb-20` (padding-bottom) en el `<main>` móvil?
+
+El bottom nav tiene altura fija de ~64px. Si no agregas padding al contenido, el último elemento queda tapado por el nav. El padding de 80px (`pb-20`) asegura que siempre haya espacio scrolleable abajo.
+
+### ¿Por qué `shadow-nav` en el bottom nav y no `shadow-card`?
+
+El bottom nav va **pegado al borde** de la pantalla. Las sombras hacia arriba (`0 -2px 8px`) dan sensación de "flotando sobre el contenido". Las sombras hacia abajo (`0 1px 3px`) son para cards que flotan sobre el fondo. Contexto distinto, sombra distinta.
+
+## ⚠️ Errores comunes con responsive
+
+| Síntoma | Causa | Arreglo |
+|---|---|---|
+| El sidebar aparece en móvil | Olvidaste `hidden` | Añade `hidden md:flex` |
+| El bottom nav aparece en desktop | Olvidaste `md:hidden` | Añade `md:hidden` al bottom nav |
+| El contenido queda tapado abajo en móvil | Falta padding-bottom | Añade `pb-20` al `<main>` |
+| El sidebar no tiene el ancho correcto | Usaste `w-18` sin el plugin de Tailwind | Verifica que `@tailwindcss/vite` esté en `vite.config.js` |
+
+## 🏋️ Ejercicio
+
+1. Cambia `--color-forest` a `#2563EB` (azul) en `index.css`. Verifica que el sidebar, los botones y los textos cambian de color automáticamente. Vuelve a verde.
+2. Añade un cuarto ítem de navegación: `href="/challenges"`, `icon="🎯"`, `label="Retos"`. Debe aparecer tanto en sidebar como en bottom nav.
+3. **Pregunta de diseño**: si quisieras que el sidebar tenga ancho variable (colapsado: 72px, expandido: 256px) al hacer hover, ¿dónde viviría el estado `isExpanded`? ¿En `AppShell`, en `NavItem`, o en ningún lado (solo CSS)?
+   <details><summary>💡 Respuesta</summary>
+   **Solo CSS** para el hover (transición instantánea sin estado). Si quieres un botón de toggle que mantenga el sidebar expandido, entonces sí necesitas `useState` en `AppShell`. El patrón: `const [isExpanded, setIsExpanded] = useState(false)` + clases condicionales `${isExpanded ? 'w-64' : 'w-18'}`. Pero para hover simple, `group-hover:w-64` + `transition-all` es suficiente.
+   </details>
+
+---
+
+# Lección 8 — React Router DOM v6 (navegación entre páginas)
+
+## 🎯 Objetivo
+
+Configurar React Router DOM v6 para tener 3 rutas funcionando: `/` (Home), `/recipes` (Recetas), `/profile` (Perfil). Al terminar entenderás rutas anidadas, `<Outlet />`, `NavLink` con clase activa automática, y navegación programática con `useNavigate`.
+
+## 💡 Concepto clave: SPA routing (Single Page Application)
+
+En una app tradicional multi-página, cada link hace un request al servidor que devuelve HTML nuevo. La página se recarga completa (flash blanco, estado perdido).
+
+En una **SPA**, el navegador **nunca recarga**. El router intercepta los clicks en links, cambia la URL del navegador, y muestra/oculta componentes según la ruta — todo sin tocar el servidor.
+
+React Router es la librería estándar para esto. La v6 es radicalmente más simple que la v5: menos APIs, mejor tree-shaking, rutas como datos.
+
+> **Analogía**: El router es como un switchboard telefónico antiguo. Ves la URL `/recipes`, el router conecta el cable a `<RecipesPage />`. Cambias a `/profile`, desconecta `RecipesPage` y conecta `<ProfilePage />`. Todo pasa en la central (tu navegador), sin llamar afuera (servidor).
+
+## 🛠️ Manos a la obra
+
+### Paso 1 — Instalar React Router DOM
+
+```bash
+npm install react-router-dom
+```
+
+### Paso 2 — Crear las páginas vacías
+
+```jsx
+// src/pages/Home.jsx
+export function Home() {
+  return (
+    <div className="mx-auto max-w-md px-5 py-6">
+      <h1 className="font-display text-3xl font-bold text-forest">
+        🏠 Inicio
+      </h1>
+      <p className="mt-2 text-stone-600">
+        Aquí irá el dashboard con lecciones disponibles, progreso semanal, etc.
+      </p>
+    </div>
+  );
+}
+```
+
+```jsx
+// src/pages/Recipes.jsx
+export function Recipes() {
+  return (
+    <div className="mx-auto max-w-md px-5 py-6">
+      <h1 className="font-display text-3xl font-bold text-forest">
+        📖 Recetario
+      </h1>
+      <p className="mt-2 text-stone-600">
+        Aquí se mostrarán todas las lecciones completadas con sus recetas desbloqueadas.
+      </p>
+    </div>
+  );
+}
+```
+
+```jsx
+// src/pages/Profile.jsx
+import { useProgress } from "../hooks/useProgress";
+
+export function Profile() {
+  const { xp } = useProgress();
+  const level = Math.floor(xp / 100) + 1;
+
+  return (
+    <div className="mx-auto max-w-md px-5 py-6">
+      <h1 className="font-display text-3xl font-bold text-forest">
+        👤 Perfil
+      </h1>
+      
+      <div className="mt-6 space-y-4">
+        <div className="rounded-2xl bg-white p-6 shadow-card">
+          <p className="text-sm text-stone-400">Nivel</p>
+          <p className="font-display text-5xl font-bold text-amber">{level}</p>
+        </div>
+
+        <div className="rounded-2xl bg-white p-6 shadow-card">
+          <p className="text-sm text-stone-400">Experiencia total</p>
+          <p className="font-display text-5xl font-bold text-forest">{xp} XP</p>
+        </div>
+
+        <div className="rounded-2xl bg-white p-6 shadow-card">
+          <p className="text-sm text-stone-400">Lecciones completadas</p>
+          <p className="font-display text-5xl font-bold text-stone-800">0</p>
+          <p className="mt-1 text-xs text-stone-400">
+            Completa tu primera lección para desbloquear badges
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### Paso 3 — Configurar el router en `App.jsx`
+
+```jsx
+// src/App.jsx
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AppShell } from "./components/layout/AppShell";
+import { Home } from "./pages/Home";
+import { Recipes } from "./pages/Recipes";
+import { Profile } from "./pages/Profile";
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppShell>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/recipes" element={<Recipes />} />
+          <Route path="/profile" element={<Profile />} />
+        </Routes>
+      </AppShell>
+    </BrowserRouter>
+  );
+}
+```
+
+### Paso 4 — Actualizar `AppShell` para usar `NavLink`
+
+`NavLink` es como `<a>` pero añade automáticamente la clase `active` cuando la ruta coincide.
+
+```jsx
+// src/components/layout/AppShell.jsx
+import { NavLink } from "react-router-dom";
+
+export function AppShell({ children }) {
+  return (
+    <div className="min-h-screen">
+      
+      {/* SIDEBAR */}
+      <aside className="fixed left-0 top-0 hidden h-screen w-18 flex-col items-center bg-forest py-6 md:flex">
+        <nav className="flex flex-col gap-6">
+          <NavItem to="/" icon="🏠" label="Inicio" />
+          <NavItem to="/recipes" icon="📖" label="Recetas" />
+          <NavItem to="/profile" icon="👤" label="Perfil" />
+        </nav>
+      </aside>
+
+      {/* CONTENIDO */}
+      <main className="pb-20 md:ml-18 md:pb-0">
+        {children}
+      </main>
+
+      {/* BOTTOM NAV */}
+      <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around border-t border-stone-200 bg-white py-3 shadow-nav md:hidden">
+        <NavItem to="/" icon="🏠" label="Inicio" isMobile />
+        <NavItem to="/recipes" icon="📖" label="Recetas" isMobile />
+        <NavItem to="/profile" icon="👤" label="Perfil" isMobile />
+      </nav>
+
+    </div>
+  );
+}
+
+/**
+ * Item de navegación con NavLink.
+ * La prop `isActive` la inyecta react-router automáticamente.
+ */
+function NavItem({ to, icon, label, isMobile = false }) {
+  if (isMobile) {
+    return (
+      <NavLink
+        to={to}
+        className={({ isActive }) =>
+          `flex flex-col items-center gap-1 transition-colors ${
+            isActive ? "text-forest" : "text-stone-400"
+          }`
+        }
+      >
+        <span className="text-xl" aria-hidden="true">{icon}</span>
+        <span className="text-xs font-medium">{label}</span>
+      </NavLink>
+    );
+  }
+
+  // Sidebar
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
+          isActive
+            ? "bg-forest-light text-white"
+            : "text-white/60 hover:bg-forest-dark hover:text-white"
+        }`
+      }
+      title={label}
+    >
+      <span className="text-2xl" aria-hidden="true">{icon}</span>
+    </NavLink>
+  );
+}
+```
+
+### Paso 5 — Probarlo
+
+1. Abre la app. Deberías estar en `/` (Home).
+2. Haz click en "📖 Recetas" (sidebar o bottom nav). La URL cambia a `/recipes` **sin recargar la página**.
+3. Haz click en "👤 Perfil". Ves tu XP, nivel y lecciones completadas.
+4. El botón activo tiene estilo distinto (fondo más claro en sidebar, color verde en bottom nav).
+
+## 🤔 Decisión de diseño
+
+### ¿Por qué `<BrowserRouter>` y no `<HashRouter>`?
+
+| Router | URLs | Cuándo usar |
+|---|---|---|
+| `<BrowserRouter>` | `/recipes` | Apps modernas con servidor que soporta history API |
+| `<HashRouter>` | `/#/recipes` | Apps estáticas sin servidor (GitHub Pages sin config) |
+
+`BrowserRouter` da URLs limpias. `HashRouter` funciona en cualquier host tonto (el `#` previene que el navegador haga request al servidor). Para deploy en Vercel/Netlify, usa `BrowserRouter` + un archivo `_redirects` o `vercel.json` que redirija todo a `/index.html`.
+
+### ¿Por qué `className={({ isActive }) => ...}` con función?
+
+`NavLink` pasa un objeto `{ isActive, isPending }` a la prop `className` si es una función. Así puedes aplicar clases condicionales sin `useState` manual:
+
+```jsx
+// ✅ React Router maneja isActive por ti
+<NavLink className={({ isActive }) => isActive ? "activo" : "inactivo"} />
+
+// ❌ Sin router tendrías que hacer esto manualmente
+const isActive = window.location.pathname === "/recipes";
+<a className={isActive ? "activo" : "inactivo"} />
+```
+
+### ¿Por qué las rutas están en `App.jsx` y no en un archivo separado?
+
+Con 3 rutas, vivir en `App.jsx` está bien. A partir de 10+ rutas, conviene un `src/routes.jsx`:
+
+```jsx
+// src/routes.jsx
+export const routes = [
+  { path: "/", element: <Home /> },
+  { path: "/recipes", element: <Recipes /> },
+  // ...
+];
+
+// App.jsx
+import { routes } from "./routes";
+<Routes>
+  {routes.map(r => <Route key={r.path} {...r} />)}
+</Routes>
+```
+
+Pero por ahora, 3 rutas en `App.jsx` son legibles.
+
+### ¿Qué pasa si el usuario escribe `/algo-que-no-existe` en la URL?
+
+React Router no muestra nada (pantalla blanca). Deberías añadir una ruta catch-all:
+
+```jsx
+<Routes>
+  <Route path="/" element={<Home />} />
+  <Route path="/recipes" element={<Recipes />} />
+  <Route path="/profile" element={<Profile />} />
+  <Route path="*" element={<NotFound />} /> {/* 👈 catch-all */}
+</Routes>
+
+function NotFound() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="text-center">
+        <p className="text-6xl">🤷</p>
+        <h1 className="mt-4 font-display text-2xl font-bold">Página no encontrada</h1>
+        <a href="/" className="mt-2 text-forest underline">Volver al inicio</a>
+      </div>
+    </div>
+  );
+}
+```
+
+## 🔥 Bonus: Navegación programática con `useNavigate`
+
+A veces necesitas navegar **desde código** (no desde un click). Ejemplo: al completar una lección, redirigir a `/recipes`.
+
+```jsx
+import { useNavigate } from "react-router-dom";
+
+function LessonCompleted() {
+  const navigate = useNavigate();
+
+  const goToRecipes = () => {
+    navigate("/recipes"); // cambia la ruta programáticamente
+  };
+
+  return (
+    <button onClick={goToRecipes}>
+      Ver mi recetario →
+    </button>
+  );
+}
+```
+
+`navigate(-1)` → volver atrás (como el botón "Back" del navegador).
+`navigate("/recipes", { replace: true })` → reemplaza la entrada actual del historial (el usuario no puede volver con "Back").
+
+## 🏋️ Ejercicio
+
+1. Crea una página `src/pages/NotFound.jsx` con un 404 personalizado. Añade la ruta `<Route path="*" element={<NotFound />} />` al final de `<Routes>`. Visita `/ruta-inventada` para verla.
+2. En `Home.jsx`, importa `lessons` y muestra una tarjeta por cada lección con su emoji, nombre y un botón "Empezar". El botón debe navegar a `/lesson/:id` (todavía no existe esa ruta, ponlo como placeholder).
+3. **Pregunta de diseño**: si quisieras que `/recipes` tenga pestañas "Completadas" y "Favoritas" (`/recipes/completed`, `/recipes/favorites`), ¿usarías rutas anidadas o estado local?
+   <details><summary>💡 Respuesta</summary>
+   **Rutas anidadas**. URLs compartibles > estado volátil. Si el usuario comparte el link `/recipes/completed`, debe abrirse directo en esa pestaña. Con estado local, siempre abre en la primera pestaña. Patrón:
+   ```jsx
+   <Route path="/recipes" element={<RecipesLayout />}>
+     <Route path="completed" element={<Completed />} />
+     <Route path="favorites" element={<Favorites />} />
+   </Route>
+   ```
+   `RecipesLayout` renderiza `<Outlet />` donde van las subrutas.
+   </details>
+
+---
+
+# 🛑 Pausa — Fin de la Tanda 4
+
+Ya sabes:
+
+- ✅ Configurar un sistema de design tokens completo con `@theme`
+- ✅ Construir un layout responsivo (sidebar + bottom nav) con clases utility
+- ✅ Configurar React Router DOM v6 con rutas básicas
+- ✅ Usar `NavLink` con estilos activos automáticos
+- ✅ Navegar programáticamente con `useNavigate`
+
+**Logros desbloqueados:**
+
+- La app tiene 3 páginas navegables sin recargar.
+- El diseño es responsivo (sidebar en desktop, bottom nav en móvil).
+- Cambiar un color en `@theme` actualiza toda la app.
+
+**Antes de la Tanda 5**, verifica que:
+
+1. Puedes navegar entre Home, Recetas y Perfil con el nav (sidebar o bottom).
+2. El ítem activo tiene estilo distinto (fondo claro en sidebar, texto verde en bottom nav).
+3. La página de Perfil muestra el XP y nivel reales (persistidos de la Tanda 3).
+4. Al redimensionar la ventana, el layout cambia de sidebar a bottom nav y viceversa.
+
+Cuando estés listo, escribe **"sigue"** y arranco la **Tanda 5** (final): persistencia avanzada con sincronización entre pestañas (L9) y build + deploy + optimizaciones de producción (L10).
+
+> ❓ Si algo de tokens, responsive o routing no quedó claro, pregunta ahora.

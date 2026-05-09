@@ -1,16 +1,61 @@
 @import "tailwindcss";
-.custom-sidebar{
-  background-color: #0C7C59;
-  color: white;
-}
 
 @theme {
-  --color-cream:        #F5E3C8;   /* fondo principal */
-  --color-forest:       #1B5C3E;   /* sidebar, botones primarios */
-  --color-forest-dark:  #144A31;   /* hover del sidebar */
-  --color-amber:        #F5A623;   /* hero cards, progreso activo */
-  --color-amber-dark:   #E09410;   /* hover amber */
-  --color-orange:       #E8843A;   /* tiles de ingredientes */
-  --color-orange-dark:  #D4601A;   /* hover de tiles */
+  --color-cream: #f5e3c8; /* fondo principal */
+  --color-forest: #1b5c3e; /* sidebar, botones primarios */
+  --color-forest-dark: #144a31; /* hover del sidebar */
+  --color-amber: #f5a623; /* hero cards, progreso activo */
+  --color-amber-dark: #e09410; /* hover amber */
+  --color-orange: #e8843a; /* tiles de ingredientes */
+  --color-orange-dark: #d4601a; /* hover de tiles */
+
+  /*Tipografía */
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Nunito",ui-sans-serif, system-ui, sans-serif;
+
+  --spacing-18:4.5rem;
+  --spacing-20: 5rem;  
+
+  /*ESPACIADO */
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+
+  /* SOMBRAS */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-nav: 0 -2px 8px rgba(0, 0, 0, 0.06);
+
+  /*BREALPOINTS PARA DISEÑO RESPONSIVO*/
+
+  --breakpoint-nav: 768px;
 }
 
+/*ESTILOS GLOBALES*/
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-cream);
+  color: #292524; /* stone-800 */
+}
+
+html{
+  scroll-behavior: smooth;
+}
+
+html,body{
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE y Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
