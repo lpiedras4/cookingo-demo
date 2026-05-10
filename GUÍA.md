@@ -100,7 +100,7 @@ Cada lección tiene exactamente **5 pantallas** en este orden:
 | 2 | L3 Componentes y props · L4 `useState` y máquina de pasos | ✅ Hecha |
 | 3 | L5 Custom hook `useProgress` · L6 Lifting state up | ✅ Hecha |
 | 4 | L7 Tailwind v4 con `@theme` · L8 React Router DOM v6 | ✅ Hecha |
-| 5 | L9 Persistencia avanzada · L10 Build, deploy y siguientes pasos | ⏳ Siguiente |
+| 5 | L9 Persistencia avanzada · L10 Build, deploy y siguientes pasos | ✅ Hecha |
 
 ---
 
@@ -2076,3 +2076,678 @@ Ya sabes:
 Cuando estés listo, escribe **"sigue"** y arranco la **Tanda 5** (final): persistencia avanzada con sincronización entre pestañas (L9) y build + deploy + optimizaciones de producción (L10).
 
 > ❓ Si algo de tokens, responsive o routing no quedó claro, pregunta ahora.
+
+---
+
+# 🔐 Tanda 5 — Persistencia robusta y producción
+
+La tanda final cubre edge cases de `localStorage`, sincronización entre pestañas, y cómo llevar la app a producción.
+
+---
+
+# Lección 9 — Persistencia avanzada y edge cases
+
+## 🎯 Objetivo
+
+Hacer que `useProgress` sea robusto ante errores, sincronice entre pestañas, soporte migraciones de datos, y permita resetear el progreso. Al terminar entenderás los edge cases reales de `localStorage` y cómo manejarlos sin romper la experiencia del usuario.
+
+## 💡 Concepto clave: localStorage no es una base de datos
+
+`localStorage` es útil pero limitado:
+- **No es transaccional** — no hay rollback si algo falla a la mitad.
+- **No sincroniza automáticamente** — si el usuario abre 2 pestañas, cada una tiene su propia copia en memoria.
+- **Puede fallar silenciosamente** — modo incógnito, cuota excedida, permisos bloqueados.
+- **No tiene versionado** — si cambias la estructura de datos, rompes versiones antiguas guardadas.
+
+Por eso una implementación robusta necesita:
+1. **Manejo de errores** — try/catch en cada operación
+2. **Sincronización cross-tab** — escuchar el evento `storage`
+3. **Migraciones** — detectar versión antigua y migrar datos
+4. **Reset explícito** — función para borrar todo y empezar de cero
+
+> **Analogía**: `localStorage` es como un post-it pegado en el refrigerador. Funciona para recordatorios simples, pero no esperes que múltiples personas lo actualicen simultáneamente sin pisarse, ni que sobreviva a un cambio de casa, ni que tenga copias de seguridad.
+
+## 🛠️ Manos a la obra
+
+### Paso 1 — Versión actual de `useProgress` (recap)
+
+Actualmente tienes esto (de la Lección 5):
+
+```js
+// src/hooks/useProgress.js
+import { useState, useEffect } from "react";
+
+const STORAGE_KEY = "nutricocina-progress";
+
+export function useProgress() {
+  const [xp, setXp] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        return data.xp || 0;
+      }
+    } catch (error) {
+      console.warn("No se pudo leer localStorage:", error);
+    }
+    return 0;
+  });
+
+  useEffect(() => {
+    try {
+      const data = { xp };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.warn("No se pudo guardar en localStorage:", error);
+    }
+  }, [xp]);
+
+  const addXp = (points) => {
+    setXp((current) => current + points);
+  };
+
+  return { xp, addXp };
+}
+```
+
+**Problemas no resueltos:**
+1. No sincroniza entre pestañas.
+2. No permite resetear el progreso.
+3. No soporta futuras expansiones (badges, lecciones completadas).
+4. No tiene versionado — si cambias la estructura, rompe datos antiguos.
+
+### Paso 2 — Versión robusta completa
+
+```js
+// src/hooks/useProgress.js
+import { useState, useEffect } from "react";
+
+const STORAGE_KEY = "nutricocina-progress";
+const STORAGE_VERSION = 1; // 👈 Versionado para migraciones
+
+/**
+ * Estructura de datos en localStorage:
+ * {
+ *   version: 1,
+ *   xp: number,
+ *   completedLessons: string[],  // IDs de lecciones completadas
+ *   badges: string[],             // IDs de badges desbloqueados
+ *   lastUpdated: number           // timestamp para debug
+ * }
+ */
+
+// Estado inicial cuando no hay datos guardados
+const INITIAL_STATE = {
+  version: STORAGE_VERSION,
+  xp: 0,
+  completedLessons: [],
+  badges: [],
+  lastUpdated: Date.now(),
+};
+
+/**
+ * Lee datos de localStorage con manejo de errores y migración.
+ */
+function loadFromStorage() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return INITIAL_STATE;
+
+    const data = JSON.parse(saved);
+
+    // Migración de versiones antiguas
+    if (!data.version || data.version < STORAGE_VERSION) {
+      return migrateData(data);
+    }
+
+    return data;
+  } catch (error) {
+    console.warn("Error leyendo localStorage:", error);
+    return INITIAL_STATE;
+  }
+}
+
+/**
+ * Migra datos de versiones antiguas a la estructura actual.
+ */
+function migrateData(oldData) {
+  console.log("Migrando datos de versión antigua...");
+  
+  // Versión 0 (sin version field) → Versión 1
+  if (!oldData.version) {
+    return {
+      version: STORAGE_VERSION,
+      xp: oldData.xp || 0,
+      completedLessons: oldData.completedLessons || [],
+      badges: oldData.badges || [],
+      lastUpdated: Date.now(),
+    };
+  }
+
+  // Futuras migraciones irían aquí
+  // if (oldData.version === 1) { ... }
+
+  return oldData;
+}
+
+/**
+ * Guarda datos en localStorage con manejo de errores.
+ */
+function saveToStorage(data) {
+  try {
+    const toSave = {
+      ...data,
+      lastUpdated: Date.now(),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch (error) {
+    console.error("Error guardando en localStorage:", error);
+    
+    // Si falló por cuota excedida, intentar limpiar datos antiguos
+    if (error.name === "QuotaExceededError") {
+      console.warn("Cuota de localStorage excedida");
+      // Aquí podrías implementar limpieza de datos antiguos
+    }
+  }
+}
+
+/**
+ * Hook personalizado para gestionar el progreso del usuario.
+ */
+export function useProgress() {
+  const [state, setState] = useState(loadFromStorage);
+
+  // Guardar en localStorage cada vez que cambia el estado
+  useEffect(() => {
+    saveToStorage(state);
+  }, [state]);
+
+  // Sincronización entre pestañas — escucha cambios en localStorage
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      // Solo reacciona a cambios en nuestra clave
+      if (e.key !== STORAGE_KEY) return;
+      
+      // Si otra pestaña borró los datos
+      if (e.newValue === null) {
+        setState(INITIAL_STATE);
+        return;
+      }
+
+      // Si otra pestaña actualizó los datos
+      try {
+        const newData = JSON.parse(e.newValue);
+        setState(newData);
+      } catch (error) {
+        console.warn("Error parseando datos de otra pestaña:", error);
+      }
+    };
+
+    // El evento storage solo se dispara en pestañas DIFERENTES a la que hizo el cambio
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  // Funciones para modificar el estado
+  const addXp = (points) => {
+    setState((prev) => ({
+      ...prev,
+      xp: prev.xp + points,
+    }));
+  };
+
+  const markLessonComplete = (lessonId) => {
+    setState((prev) => {
+      // No duplicar si ya está completada
+      if (prev.completedLessons.includes(lessonId)) {
+        return prev;
+      }
+      return {
+        ...prev,
+        completedLessons: [...prev.completedLessons, lessonId],
+      };
+    });
+  };
+
+  const unlockBadge = (badgeId) => {
+    setState((prev) => {
+      if (prev.badges.includes(badgeId)) {
+        return prev;
+      }
+      return {
+        ...prev,
+        badges: [...prev.badges, badgeId],
+      };
+    });
+  };
+
+  const resetProgress = () => {
+    setState(INITIAL_STATE);
+    // También limpiar localStorage inmediatamente
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.warn("Error limpiando localStorage:", error);
+    }
+  };
+
+  return {
+    xp: state.xp,
+    completedLessons: state.completedLessons,
+    badges: state.badges,
+    addXp,
+    markLessonComplete,
+    unlockBadge,
+    resetProgress,
+  };
+}
+```
+
+### Paso 3 — Actualizar `Profile.jsx` para usar el reset
+
+```jsx
+// src/pages/Profile.jsx
+import { useProgress } from "../hooks/useProgress";
+
+export function Profile() {
+  const { xp, completedLessons, badges, resetProgress } = useProgress();
+  const level = Math.floor(xp / 100) + 1;
+
+  const handleReset = () => {
+    // Confirmación antes de borrar todo
+    const confirmed = window.confirm(
+      "¿Estás seguro? Esto borrará todo tu progreso (XP, lecciones, badges). Esta acción no se puede deshacer."
+    );
+    
+    if (confirmed) {
+      resetProgress();
+    }
+  };
+
+  return (
+    <div className="mx-auto max-w-md px-5 py-6">
+      <header className="mb-6 text-center">
+        <div className="mx-auto h-24 w-24 rounded-full bg-gradient-to-br from-amber to-orange flex items-center justify-center text-4xl">
+          👤
+        </div>
+        <h1 className="mt-4 font-display text-2xl font-bold text-forest">
+          Mi Perfil
+        </h1>
+      </header>
+
+      <div className="space-y-4">
+        {/* Cards de stats (igual que antes) */}
+        <div className="rounded-2xl bg-white p-6 shadow-card">
+          <p className="text-sm uppercase tracking-wide text-stone-400">Nivel actual</p>
+          <p className="mt-1 font-display text-5xl font-bold text-amber">{level}</p>
+          <div className="mt-4 h-2 rounded-full bg-stone-100">
+            <div
+              className="h-full rounded-full bg-amber transition-all"
+              style={{ width: `${(xp % 100)}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs text-stone-500">
+            {xp % 100} / 100 XP para nivel {level + 1}
+          </p>
+        </div>
+
+        <div className="rounded-2xl bg-white p-6 shadow-card">
+          <p className="text-sm uppercase tracking-wide text-stone-400">Experiencia total</p>
+          <p className="mt-1 font-display text-5xl font-bold text-forest">{xp} XP</p>
+        </div>
+
+        <div className="rounded-2xl bg-white p-6 shadow-card">
+          <p className="text-sm uppercase tracking-wide text-stone-400">Lecciones completadas</p>
+          <p className="mt-1 font-display text-5xl font-bold text-stone-800">
+            {completedLessons.length}
+          </p>
+        </div>
+
+        {/* Botón de reset — zona de peligro */}
+        <div className="mt-8 rounded-2xl border-2 border-red-200 bg-red-50 p-4">
+          <p className="text-sm font-semibold text-red-800">Zona de peligro</p>
+          <p className="mt-1 text-xs text-red-600">
+            Restablecer tu progreso borrará todo tu XP, lecciones y badges.
+          </p>
+          <button
+            onClick={handleReset}
+            className="mt-3 w-full rounded-xl border-2 border-red-400 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors"
+          >
+            Restablecer progreso
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### Paso 4 — Probarlo
+
+**Test de sincronización entre pestañas:**
+1. Abre la app en 2 pestañas (duplica la pestaña con Cmd+Click en la URL).
+2. En pestaña A, completa un paso (gana XP).
+3. Ve a pestaña B — el XP **se actualiza automáticamente** sin recargar. ✨
+
+**Test de migración:**
+1. Abre DevTools → Application → Local Storage.
+2. Edita manualmente el JSON: borra el campo `version`.
+3. Recarga la app — detecta la versión antigua y migra automáticamente.
+
+**Test de reset:**
+1. Gana algo de XP.
+2. Ve a Perfil → "Restablecer progreso".
+3. Confirma → todo vuelve a 0.
+
+## 🤔 Decisión de diseño
+
+### ¿Por qué `version` en los datos y no en una clave separada?
+
+```js
+// ❌ Versión en clave separada
+localStorage.setItem("nutricocina-version", "1");
+localStorage.setItem("nutricocina-progress", JSON.stringify({ xp: 100 }));
+
+// ✅ Versión dentro de los datos
+localStorage.setItem("nutricocina-progress", JSON.stringify({ version: 1, xp: 100 }));
+```
+
+Con la versión dentro, **un solo `getItem`** trae todo (datos + versión). Con claves separadas, necesitas 2 llamadas y pueden desincronizarse (imagina que se guarda la data pero falla al guardar la versión).
+
+### ¿Por qué `lastUpdated` si no lo usamos?
+
+Es un campo de **debugging**. Si un usuario reporta "mi XP no se guarda", puedes pedirle que abra DevTools y te diga el `lastUpdated`. Si es de hace 3 días, sabes que el `setItem` no está corriendo — posible error en `useEffect`.
+
+### ¿Por qué el evento `storage` no se dispara en la pestaña que hizo el cambio?
+
+Es el comportamiento del navegador por diseño. La idea es: "la pestaña que cambió el valor ya lo sabe (acaba de hacer `setItem`); avisemos a las OTRAS pestañas que no lo saben".
+
+Si necesitas ejecutar código en la pestaña que hizo el cambio, lo pones en el setter (`addXp`, `resetProgress`), no en el listener de `storage`.
+
+### ¿Por qué `resetProgress` hace `localStorage.removeItem` si `setState(INITIAL_STATE)` ya guarda en el `useEffect`?
+
+Race condition. Si solo haces `setState(INITIAL_STATE)`, el `useEffect` corre **después** del render. Si el usuario cierra la pestaña justo entre el `setState` y el `useEffect`, el valor antiguo persiste. El `removeItem` inmediato garantiza que se borra **antes** de que cualquier cosa pueda fallar.
+
+## ⚠️ Errores comunes con sincronización cross-tab
+
+| Síntoma | Causa | Arreglo |
+|---|---|---|
+| El evento `storage` dispara infinitamente | Actualizas localStorage dentro del listener | Solo lee en el listener, no escribas |
+| Los cambios no se sincronizan | El listener está en un `useEffect` sin cleanup | Añade `return () => removeEventListener` |
+| Se pierden datos al cambiar entre pestañas | Guardas sin spread (`...prev`) | Siempre `setState(prev => ({ ...prev, campo: nuevoValor }))` |
+
+## 🏋️ Ejercicio
+
+1. Añade un campo `streak` (racha de días consecutivos) al estado. Incrementa en 1 cada vez que el usuario complete una lección, **pero solo si la última fecha guardada fue ayer**. Si pasaron 2+ días, resetea a 1.
+2. Implementa un límite de **lecciones completadas que se guardan** — si `completedLessons.length > 100`, borra las 50 más antiguas antes de guardar. Esto previene que el localStorage crezca sin límite.
+3. **Pregunta de diseño**: si quisieras exportar/importar el progreso (ej: un botón "Descargar respaldo" que genere un archivo JSON), ¿dónde viviría esa función? ¿En `useProgress`, en `Profile.jsx`, o en un hook separado `useBackup`?
+   <details><summary>💡 Respuesta</summary>
+   En `Profile.jsx` (UI-driven) o en un hook separado `useBackup`. No en `useProgress` — ese hook ya tiene una responsabilidad (gestionar estado). Exportar/importar es otra responsabilidad (persistencia a archivo). Separar hooks = fácil de testear, fácil de reutilizar en otra página.
+   </details>
+
+---
+
+# Lección 10 — Build, deploy y siguientes pasos
+
+## 🎯 Objetivo
+
+Construir la versión de producción, desplegarla en Vercel, analizar el bundle para optimizar, y entender los siguientes pasos técnicos para escalar la app.
+
+## 💡 Concepto clave: dev vs producción
+
+El código que escribes en desarrollo (`npm run dev`) **no es el que ven los usuarios**. Vite hace transformaciones pesadas antes de servir la app en producción:
+
+| Característica | Dev (`npm run dev`) | Producción (`npm run build`) |
+|---|---|---|
+| **Velocidad de inicio** | Instantánea (ESM nativo) | Lenta (bundling completo) |
+| **Recarga en caliente** | Sí (HMR) | No (archivo estático) |
+| **Minificación** | No | Sí (nombres cortos, sin espacios) |
+| **Tree-shaking** | No | Sí (elimina código no usado) |
+| **Source maps** | Inline (fácil debug) | Externas o ninguna |
+| **Tamaño de archivos** | Grande (~2MB) | Pequeño (~200KB) |
+| **Compatibilidad** | Solo navegadores modernos | Transpila a ES5 si hace falta |
+
+> **Analogía**: dev es como ensayar una obra de teatro con el guion en mano, luces encendidas y pausas para correcciones. Producción es la función en vivo: luces apagadas, sin pausas, todo sincronizado al milisegundo.
+
+## 🛠️ Manos a la obra
+
+### Paso 1 — Build local
+
+```bash
+npm run build
+```
+
+Esto crea una carpeta `dist/` con tu app optimizada:
+
+```
+dist/
+├── index.html
+├── assets/
+│   ├── index-[hash].js      # Tu código + React + dependencias
+│   ├── index-[hash].css     # Tailwind compilado
+│   └── [imágenes, fuentes]
+```
+
+El `[hash]` es un identificador único basado en el contenido. Si cambias el CSS, el hash del JS no cambia → los navegadores pueden cachear el JS viejo.
+
+### Paso 2 — Probar la build local
+
+```bash
+npm run preview
+```
+
+Esto sirve la carpeta `dist/` en `http://localhost:4173`. Navega la app como si estuviera en producción:
+- ¿Todo funciona?
+- ¿Las rutas funcionan al recargar (`/profile` → F5)?
+- ¿El XP persiste?
+
+Si las rutas fallan al recargar (404), necesitas configurar el servidor para redirigir todo a `index.html` — lo haremos en el deploy.
+
+### Paso 3 — Deploy a Vercel (opción A — recomendada)
+
+**Por qué Vercel**: integración con GitHub, preview deploys automáticos, CDN global, SSL gratis, configuración cero para Vite.
+
+1. **Crea cuenta en Vercel** (vercel.com) — autentícate con GitHub.
+
+2. **Sube tu código a GitHub**:
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit - NutriCocina MVP"
+   git branch -M main
+   git remote add origin https://github.com/tu-usuario/nutricocina.git
+   git push -u origin main
+   ```
+
+3. **Importa el proyecto en Vercel**:
+   - Vercel → "Add New Project" → "Import Git Repository"
+   - Selecciona tu repo `nutricocina`
+   - Vercel **detecta automáticamente** que es Vite
+   - Build Command: `npm run build` (autodetectado)
+   - Output Directory: `dist` (autodetectado)
+   - Click "Deploy"
+
+4. **Espera 1-2 minutos** → Vercel te da una URL: `https://nutricocina-xxxxx.vercel.app`
+
+5. **Configura dominio custom** (opcional):
+   - Vercel → Settings → Domains
+   - Añade `nutricocina.com` (si lo compraste)
+   - Sigue las instrucciones de DNS
+
+**Configuración automática de rutas**: Vercel detecta que es una SPA y redirige automáticamente todas las rutas a `index.html`. No necesitas archivo de config.
+
+### Paso 4 — Deploy a Netlify (opción B)
+
+1. **Crea `netlify.toml` en la raíz del proyecto**:
+   ```toml
+   [build]
+     command = "npm run build"
+     publish = "dist"
+
+   [[redirects]]
+     from = "/*"
+     to = "/index.html"
+     status = 200
+   ```
+
+2. **Deploy via Netlify CLI**:
+   ```bash
+   npm install -g netlify-cli
+   netlify login
+   netlify init
+   netlify deploy --prod
+   ```
+
+O arrastra la carpeta `dist/` al sitio de Netlify (drag & drop deploy).
+
+### Paso 5 — Analizar el bundle (optimizaciones)
+
+Instala el plugin de análisis:
+
+```bash
+npm install -D rollup-plugin-visualizer
+```
+
+Edita `vite.config.js`:
+
+```js
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { visualizer } from "rollup-plugin-visualizer";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    tailwindcss(),
+    visualizer({ open: true }), // 👈 abre el análisis en el navegador
+  ],
+});
+```
+
+Corre `npm run build` — se abre un gráfico interactivo mostrando qué ocupa espacio:
+
+**Optimizaciones comunes:**
+
+1. **React Router es pesado** (~50KB). Si solo tienes 3 rutas, considera eliminar el router y usar state (`showProfile ? <Profile /> : <Home />`). Para 3 rutas no vale la pena. Para 10+, sí.
+
+2. **Imágenes grandes** — comprime con TinyPNG antes de importar, o usa `.webp` en lugar de `.png`.
+
+3. **Fuentes** — si usas Google Fonts, considera self-hosting (descargar los `.woff2` y servirlos localmente). Ahorra 1 request externo.
+
+4. **Code splitting** — si `LessonFlow` y sus pantallas son pesadas, puedes lazy-loadear:
+   ```jsx
+   const LessonPage = lazy(() => import("./pages/LessonPage"));
+   ```
+
+Para un MVP de 100-300 KB total, no hace falta optimizar agresivamente. Importa cuando el bundle > 500 KB.
+
+## 🤔 Decisión de diseño
+
+### ¿Por qué `dist/` no se sube a Git?
+
+Porque es **código generado** — cualquiera puede recrearlo corriendo `npm run build`. Subir `dist/` a Git hace que cada commit tenga +500 KB de archivos binarios que cambian constantemente. El `.gitignore` ya incluye `dist/`.
+
+Los servidores (Vercel, Netlify) corren `npm run build` automáticamente en cada deploy.
+
+### ¿Por qué hash en los archivos (`index-a1b2c3.js`)?
+
+**Cache busting**. Los navegadores cachean archivos JS agresivamente. Si actualizas tu app pero el archivo se llama igual (`index.js`), el navegador sirve la versión vieja del cache.
+
+Con hash basado en contenido:
+- Código cambió → hash cambió → navegador descarga la versión nueva.
+- Código no cambió → mismo hash → navegador usa el cache (rápido).
+
+### ¿Por qué Vercel/Netlify y no un VPS con Nginx?
+
+| Opción | Setup | Costo (hobby) | Auto-deploy | SSL | CDN |
+|---|---|---|---|---|---|
+| Vercel/Netlify | 5 min | Gratis | Sí | Sí | Sí |
+| VPS (DigitalOcean) | 2 horas | $5/mes | No | Manual | No |
+
+Para un MVP, las plataformas serverless son objetivamente mejores. Para apps con backend custom (Node, Python), el VPS gana.
+
+## 🚀 Siguientes pasos técnicos
+
+### Corto plazo (siguientes 2 semanas)
+1. **Construir las 4 pantallas de lección** (Ingredientes, Prep, Cocción, Resultados).
+2. **Añadir 2-3 lecciones más** a `lessons.js` (variar dificultad, tipos de cocina).
+3. **Sistema de badges** — desbloquear badges al completar ciertas lecciones.
+4. **Analytics básicas** — Google Analytics o Plausible para ver cuántos usuarios completan lecciones.
+
+### Mediano plazo (1-2 meses)
+1. **Backend real** — Firebase/Supabase para autenticación + base de datos → múltiples usuarios, rankings.
+2. **Modo offline** — Service Workers para que funcione sin internet.
+3. **Animaciones pulidas** — Framer Motion para transiciones suaves entre pantallas.
+4. **Tests** — Vitest + Testing Library para asegurar que los quizzes funcionan.
+
+### Largo plazo (3-6 meses)
+1. **Monetización** — freemium (3 lecciones gratis, resto con suscripción).
+2. **Comunidad** — foro, retos semanales, compartir recetas custom.
+3. **Versión móvil nativa** — React Native reusando componentes.
+4. **IA generativa** — GPT-4 para generar lecciones custom basadas en ingredientes que el usuario tiene.
+
+## 🏋️ Ejercicio final
+
+1. **Despliega tu app en Vercel** siguiendo los pasos. Comparte el link con alguien — que pruebe completar una lección.
+2. **Abre el inspector de red** (DevTools → Network) en tu app en producción. Verifica que el JS total descargado sea < 500 KB. Si es más, usa `rollup-plugin-visualizer` para ver qué lo causa.
+3. **Crea un `README.md`** en la raíz del proyecto con:
+   - Descripción de la app
+   - Stack técnico
+   - Instrucciones de setup (`npm install`, `npm run dev`)
+   - Link al deploy
+   - Screenshot de la app
+
+---
+
+# 🎉 FIN DE LA GUÍA — ¡Lo lograste!
+
+Ya sabes:
+
+✅ **Vite + React + Tailwind v4** — setup moderno sin configuración pesada  
+✅ **Modelado de datos con JSDoc** — tipos sin TypeScript  
+✅ **Componentes desacoplados** — data down, events up  
+✅ **Estado con `useState`** — máquinas de pasos sin bugs  
+✅ **Custom hooks con `useEffect`** — lógica reutilizable  
+✅ **Persistencia en `localStorage`** — sync cross-tab, migraciones, reset  
+✅ **Design tokens con `@theme`** — cambiar toda la UI en 5 minutos  
+✅ **React Router DOM v6** — navegación SPA sin recarga  
+✅ **Deploy a producción** — Vercel/Netlify con CDN y SSL  
+
+---
+
+## 🎯 Tu próximo paso
+
+**Opción A (construir el MVP):**  
+Crea las 4 pantallas de lección que faltan (te puedo ayudar — solo di "sigue con las pantallas"). En 2-3 días tienes un MVP funcional que puedes mostrar.
+
+**Opción B (aprender más React):**  
+Profundiza en temas avanzados:
+- **Optimización de renders** — `React.memo`, `useMemo`, `useCallback`
+- **Context API** — estado global sin prop drilling
+- **Server-side rendering** — Next.js para SEO
+- **Testing** — Vitest + React Testing Library
+
+**Opción C (backend y autenticación):**  
+Añade Firebase o Supabase para usuarios reales, rankings, persistencia en la nube.
+
+---
+
+## 📚 Recursos para seguir aprendiendo
+
+- **React oficial**: [react.dev](https://react.dev) — la nueva doc oficial, súper pedagógica
+- **Tailwind v4**: [tailwindcss.com/docs](https://tailwindcss.com/docs) — cuando salga la v4 stable
+- **Vite**: [vitejs.dev](https://vitejs.dev) — plugins, optimizaciones avanzadas
+- **React Router**: [reactrouter.com](https://reactrouter.com) — data loaders, nested routes
+- **Este repo de patterns**: [patterns.dev](https://www.patterns.dev/react/) — patrones de diseño en React
+
+---
+
+## ✉️ Feedback
+
+Si esta guía te sirvió, considera:
+- ⭐ Darle estrella al repo (si lo subes a GitHub)
+- 📣 Compartirla con alguien que esté aprendiendo React
+- 💬 Mandarme tus comentarios — ¿qué estuvo claro? ¿qué faltó?
+
+**Gracias por llegar hasta aquí. Ahora a construir.** 🚀

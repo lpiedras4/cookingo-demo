@@ -2,6 +2,8 @@ import React from "react";
 import { useState } from "react";
 import WelcomeScreen from "./WelcomeScreen";
 import { TOTAL_SCREENS } from "../../data/lessons";
+import IngredientsScreen from "./IngredientsScreen";
+import  ResultsScreen  from "./ResultsScreen";
 
 /*
 Orquesta el flujo de 5 pantallas de una lección
@@ -25,7 +27,7 @@ const XP_PER_SCREEN = { // XP otorgado por pantalla
 
 const LessonFlow = ({ lesson, onEarnXp }) => {
   const [step, setStep] = useState(1);
-  
+  const [totalXpEarned, setTotalXpEarned]= useState(0);
   const next = () => {
     const nextStep = Math.min(TOTAL_SCREENS, step + 1);
     setStep(nextStep);
@@ -33,6 +35,7 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
     const xpEarned = XP_PER_SCREEN[nextStep] || 0;
     if (xpEarned > 0){
       onEarnXp(xpEarned);
+      setTotalXpEarned((prev) => prev + xpEarned);
     }
   };
 
@@ -60,10 +63,10 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
       {step === 1 && <WelcomeScreen lesson={lesson} onStart={next} />}
       {/* Pantallas 2-5: placeholders hasta las tandas 3 y 4 */}
       {step === 2 && (
-        <PlaceholderScreen
-          title="🛒 Compra los ingredientes"
-          onNext={next}
-          onPrev={step > 1 ? prev : null}
+        <IngredientsScreen
+        ingredients={lesson.ingredients}
+        onNext={next}
+        onPrev={prev}
         />
       )}
       {step === 3 && (
@@ -81,9 +84,9 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
         />
       )}
       {step === 5 && (
-        <PlaceholderScreen
-          title="🎉 ¡Lección completada!"
-          onNext={null}
+        <ResultsScreen
+          lesson={lesson}
+          xpEarned={totalXpEarned}
           onPrev={prev}
         />
       )}
