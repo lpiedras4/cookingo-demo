@@ -1,8 +1,8 @@
-import React from 'react'
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-const ResultsScreen = ({lesson, xpEarned, onPrev}) => {
+const ResultsScreen = ({ lesson, xpEarned, onPrev }) => {
   const navigate = useNavigate();
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -14,7 +14,6 @@ const ResultsScreen = ({lesson, xpEarned, onPrev}) => {
 
   return (
     <div className="relative space-y-6 py-6">
-      
       {/* Confetti - solo se muestra los primeros 3 segundos */}
       {showConfetti && <Confetti />}
 
@@ -26,9 +25,7 @@ const ResultsScreen = ({lesson, xpEarned, onPrev}) => {
         <h2 className="mt-4 font-display text-3xl font-bold text-forest">
           ¡Lección completada!
         </h2>
-        <p className="mt-2 text-stone-600">
-          Has dominado {lesson.name}
-        </p>
+        <p className="mt-2 text-stone-600">Has dominado {lesson.name}</p>
       </header>
 
       {/* Card de XP ganado */}
@@ -71,21 +68,29 @@ const ResultsScreen = ({lesson, xpEarned, onPrev}) => {
               {lesson.name}
             </p>
             <p className="mt-1 text-sm text-stone-600">
-              Ahora puedes acceder a esta receta desde tu recetario cuando quieras
+              Ahora puedes acceder a esta receta desde tu recetario cuando
+              quieras
             </p>
           </div>
         </div>
       </div>
 
       {/* Botones de acción */}
+
       <div className="space-y-3 pt-4">
+        <button
+          onClick={() => navigate("/recipes/:lessonId")}
+          className="w-full rounded-2xl bg-forest py-4 font-bold text-white shadow hover:bg-forest-dark transition-all active:scale-95"
+        >
+          📖 Ver receta completa
+        </button>
         <button
           onClick={() => navigate("/recipes")}
           className="w-full rounded-2xl bg-forest py-4 font-bold text-white shadow hover:bg-forest-dark transition-all active:scale-95"
         >
           📖 Ver mi recetario
         </button>
-        
+
         <button
           onClick={() => navigate("/")}
           className="w-full rounded-2xl border-2 border-forest py-4 font-bold text-forest hover:bg-forest hover:text-white transition-all"
@@ -100,10 +105,9 @@ const ResultsScreen = ({lesson, xpEarned, onPrev}) => {
           ← Volver al paso anterior
         </button>
       </div>
-
     </div>
-  )
-}
+  );
+};
 
 function Confetti() {
   const particles = Array.from({ length: 50 }, (_, i) => i);
@@ -117,7 +121,9 @@ function Confetti() {
           style={{
             left: `${Math.random() * 100}%`,
             animationDelay: `${Math.random() * 3}s`,
-            backgroundColor: ['#F5A623', '#E8843A', '#1B5C3E', '#F5E3C8'][Math.floor(Math.random() * 4)],
+            backgroundColor: ["#F5A623", "#E8843A", "#1B5C3E", "#F5E3C8"][
+              Math.floor(Math.random() * 4)
+            ],
           }}
         />
       ))}
@@ -125,4 +131,4 @@ function Confetti() {
   );
 }
 
-export default ResultsScreen
+export default ResultsScreen;

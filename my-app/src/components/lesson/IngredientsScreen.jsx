@@ -37,8 +37,7 @@ const IngredientsScreen = ({ ingredients, onNext, onPrev }) => {
 
   return (
     <div className="space-y-6 pb-24">
-      {" "}
-      {/* 👈 NUEVO - padding-bottom para el carrito fijo */}
+    
       {/* Header */}
       <header className="text-center">
         <h2 className="font-display text-2xl font-bold text-stone-800">
@@ -87,7 +86,7 @@ const IngredientsScreen = ({ ingredients, onNext, onPrev }) => {
                 {ingredient.name}
               </p>
 
-              {/* 👇 NUEVO - Mostrar precio */}
+           
               <p
                 className={`mt-1 text-xs font-semibold ${isSelected ? "text-green-700" : "text-white/80"}`}
               >
@@ -112,7 +111,7 @@ const IngredientsScreen = ({ ingredients, onNext, onPrev }) => {
           onClose={handleCloseModal}
         />
       )}
-      {/* 👇 NUEVO - Carrito fijo en la parte inferior */}
+  
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-stone-200 p-4 shadow-nav md:left-18 z-30">
         <div className="mx-auto max-w-md">
           <div className="flex items-center justify-between gap-4">
