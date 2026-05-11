@@ -1,7 +1,7 @@
 // src/components/lesson/PrepOrderScreen.jsx
 import React, { useState, useEffect, useRef } from "react";
 
-const PrepOrderScreen = ({ prepOrder, onNext, onPrev }) => {
+const PrepOrderScreen = ({ prepOrder, onNext, onPrev, onEarnXp }) => {
   const [availableSteps, setAvailableSteps] = useState([]);
   const [slots, setSlots] = useState([]);
   const [overSlot, setOverSlot] = useState(null);
@@ -31,6 +31,8 @@ const PrepOrderScreen = ({ prepOrder, onNext, onPrev }) => {
       setPerfectRun(true);
     }
   }, [prepOrder]);
+
+
 
   if (!prepOrder || prepOrder.length === 0) {
     return (

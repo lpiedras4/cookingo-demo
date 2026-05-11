@@ -48,13 +48,13 @@ const ResultsScreen = ({lesson, xpEarned, onPrev}) => {
       {lesson.badge && (
         <div className="rounded-2xl bg-white p-6 shadow-card text-center border-2 border-green-200">
           <p className="text-sm uppercase tracking-wide text-green-800 font-semibold">
-            🏆 Badge desbloqueado
+            🏆 Insignia desbloqueada
           </p>
           <p className="mt-2 font-display text-xl font-bold text-green-700">
             {lesson.badge}
           </p>
           <p className="mt-1 text-xs text-stone-500">
-            Visita tu perfil para ver todos tus badges
+            Visita tu perfil para ver todas tus insignias
           </p>
         </div>
       )}

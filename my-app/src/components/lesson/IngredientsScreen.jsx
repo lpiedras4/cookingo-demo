@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 /* @param {{
  *   ingredients: import("../../data/lessons").Ingredient[],
  *   onNext: () => void,
  *   onPrev: () => void
  * }} props
  */
-const IngredientsScreen = ({ingredients, onNext, onPrev}) => {
+const IngredientsScreen = ({ ingredients, onNext, onPrev }) => {
   //Array de IDs de ingredientes ya añadidos
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -15,26 +15,31 @@ const IngredientsScreen = ({ingredients, onNext, onPrev}) => {
   //Estado derivado, checa si todos los ingredientes estan en la canasta
   const allSelected = selectedIds.length === ingredients.length;
 
+  const totalPrice = selectedIds.reduce((sum, id) => {
+    const ingredient = ingredients.find((ing) => ing.id === id);
+    return sum + (ingredient?.price || 0);
+  }, 0);
 
   const handleTileClick = (ingredient) => {
     setActiveIngredient(ingredient);
   };
 
-  const handleAddToBasket = () =>{
+  const handleAddToBasket = () => {
     if (activeIngredient && !selectedIds.includes(activeIngredient.id)) {
       setSelectedIds([...selectedIds, activeIngredient.id]);
     }
     setActiveIngredient(null);
   };
 
-  const handleCloseModal =() =>{
+  const handleCloseModal = () => {
     setActiveIngredient(null);
-  }
+  };
 
   return (
-    <div className="space-y-6">
-      
-      {/* Header con instrucciones */}
+    <div className="space-y-6 pb-24">
+      {" "}
+      {/* 👈 NUEVO - padding-bottom para el carrito fijo */}
+      {/* Header */}
       <header className="text-center">
         <h2 className="font-display text-2xl font-bold text-stone-800">
           🛒 Compra los ingredientes
@@ -42,8 +47,8 @@ const IngredientsScreen = ({ingredients, onNext, onPrev}) => {
         <p className="mt-2 text-sm text-stone-600">
           Toca cada ingrediente para conocer sus beneficios nutricionales
         </p>
-        
-        {/* Contador de progreso */}
+
+        {/* Progreso de selección */}
         <div className="mt-4 flex items-center justify-center gap-2">
           <span className="text-sm font-semibold text-stone-700">
             {selectedIds.length} / {ingredients.length}
@@ -51,12 +56,11 @@ const IngredientsScreen = ({ingredients, onNext, onPrev}) => {
           <span className="text-xs text-stone-400">en la canasta</span>
         </div>
       </header>
-
-      {/* Grid de ingredientes: 2 columnas en móvil, 3 en tablet+ */}
+      {/* Grid de ingredientes */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {ingredients.map((ingredient) => {
           const isSelected = selectedIds.includes(ingredient.id);
-          
+
           return (
             <button
               key={ingredient.id}
@@ -64,9 +68,10 @@ const IngredientsScreen = ({ingredients, onNext, onPrev}) => {
               disabled={isSelected}
               className={`
                 relative rounded-2xl p-4 text-center transition-all
-                ${isSelected 
-                  ? 'bg-green-100 border-2 border-green-400 opacity-60 cursor-not-allowed'
-                  : 'bg-orange border-2 border-orange-dark hover:scale-105 active:scale-95'
+                ${
+                  isSelected
+                    ? "bg-green-100 border-2 border-green-400 opacity-60 cursor-not-allowed"
+                    : "bg-orange border-2 border-orange-dark hover:scale-105 active:scale-95"
                 }
               `}
             >
@@ -74,10 +79,19 @@ const IngredientsScreen = ({ingredients, onNext, onPrev}) => {
               <div className="text-4xl" aria-hidden="true">
                 {ingredient.emoji}
               </div>
-              
+
               {/* Nombre */}
-              <p className={`mt-2 text-sm font-bold ${isSelected ? 'text-green-800' : 'text-white'}`}>
+              <p
+                className={`mt-2 text-sm font-bold ${isSelected ? "text-green-800" : "text-white"}`}
+              >
                 {ingredient.name}
+              </p>
+
+              {/* 👇 NUEVO - Mostrar precio */}
+              <p
+                className={`mt-1 text-xs font-semibold ${isSelected ? "text-green-700" : "text-white/80"}`}
+              >
+                ${ingredient.price} MXN
               </p>
 
               {/* Checkmark si está seleccionado */}
@@ -90,7 +104,6 @@ const IngredientsScreen = ({ingredients, onNext, onPrev}) => {
           );
         })}
       </div>
-
       {/* Modal de tarjeta nutricional */}
       {activeIngredient && (
         <NutritionalCard
@@ -99,39 +112,52 @@ const IngredientsScreen = ({ingredients, onNext, onPrev}) => {
           onClose={handleCloseModal}
         />
       )}
+      {/* 👇 NUEVO - Carrito fijo en la parte inferior */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-stone-200 p-4 shadow-nav md:left-18 z-30">
+        <div className="mx-auto max-w-md">
+          <div className="flex items-center justify-between gap-4">
+            {/* Info del carrito */}
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-2xl">
+                🛒
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-stone-500 font-semibold">
+                  Canasta
+                </p>
+                <p className="font-display text-xl font-bold text-forest">
+                  ${totalPrice} MXN
+                </p>
+              </div>
+            </div>
 
-      {/* Botones de navegación */}
-      <div className="flex gap-3 pt-4">
-        <button
-          onClick={onPrev}
-          className="flex-1 rounded-2xl border border-stone-300 py-3 text-stone-600 hover:bg-stone-100 transition-colors"
-        >
-          ← Atrás
-        </button>
-        <button
-          onClick={onNext}
-          disabled={!allSelected}
-          className={`
-            flex-1 rounded-2xl py-3 font-bold text-white transition-all
-            ${allSelected
-              ? 'bg-forest hover:bg-forest-dark'
-              : 'bg-stone-300 cursor-not-allowed'
-            }
-          `}
-        >
-          Siguiente →
-        </button>
+            {/* Botón de continuar */}
+            <button
+              onClick={onNext}
+              disabled={!allSelected}
+              className={`
+                rounded-xl px-6 py-3 font-bold text-white transition-all
+                ${
+                  allSelected
+                    ? "bg-forest hover:bg-forest-dark"
+                    : "bg-stone-300 cursor-not-allowed"
+                }
+              `}
+            >
+              Continuar
+            </button>
+          </div>
+        </div>
       </div>
-
     </div>
-  )
-}
+  );
+};
 
 function NutritionalCard({ ingredient, onAdd, onClose }) {
   return (
     <>
       {/* Backdrop - fondo oscuro que ocupa toda la pantalla */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/50 z-40 animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
@@ -140,7 +166,6 @@ function NutritionalCard({ ingredient, onAdd, onClose }) {
       {/* Card - centrada en pantalla */}
       <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-w-md mx-auto animate-scale-in">
         <div className="rounded-3xl bg-white p-6 shadow-2xl">
-          
           {/* Header de la card */}
           <div className="text-center">
             <div className="text-5xl" aria-hidden="true">
@@ -190,11 +215,10 @@ function NutritionalCard({ ingredient, onAdd, onClose }) {
               Añadir a canasta
             </button>
           </div>
-
         </div>
       </div>
     </>
   );
 }
 
-export default IngredientsScreen
+export default IngredientsScreen;

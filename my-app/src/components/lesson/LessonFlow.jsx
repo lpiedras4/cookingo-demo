@@ -18,10 +18,10 @@ Este componente sabe en qué paso estamos
 
 const XP_PER_SCREEN = { // XP otorgado por pantalla
   1:0,    // Bienvenida: sin XP
-  2: 15,  // Ingredientes: 15 XP por completar la compra
-  3: 10,  // Prep: 10 XP por ordenar correctamente
-  4: 0,  // Cocina: 40 XP de los quizzes (suma de todos los pasos)
-  5: 10,  // Resultados: 10 XP bonus por completar
+  2: 0,  // Ingredientes: 15 XP por completar la compra
+  3: 15,  // Prep: 10 XP por ordenar correctamente (awarded in component)
+  4: 5,  // Cocina: 40 XP de los quizzes (suma de todos los pasos)
+  5: 5,  // Resultados: 10 XP bonus por completar
  
 };
 
@@ -77,6 +77,7 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
         ingredients={lesson.ingredients}
         onNext={next}
         onPrev={prev}
+        onEarnXp = {onEarnXp}
         />
       )}
       {step === 3 && (
@@ -84,6 +85,7 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
         prepOrder={lesson.prepOrder}
         onNext={next}
         onPrev={prev}
+        onEarnXp={onEarnXp}
         />
       )}
       {step === 4 && (

@@ -1,5 +1,7 @@
  ## TODO
-- Arreglar bug de aumento de xp tras pasar a paso anterior.
-- Agregar bloque de carrito que muestre el precio de la canasta en aumento
-- Arreglar avance si uno se equivoca en el quiz de preparar platillo.
+- Arreglar bug de aumento de xp tras pasar a paso anterior. (Parcialmente resuelto)
 - Agregar visualización de receta, desbloquear hasta completar lección.
+- Unir pantallas de nico.
+- Vincular lección de prueba de Overnight Oats.
+- Hacer drag and drop compatible con móvil
+- Cambiar botón de retroceder por abandonar lección.

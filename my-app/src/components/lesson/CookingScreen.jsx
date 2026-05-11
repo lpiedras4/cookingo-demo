@@ -47,7 +47,7 @@ const CookingScreen = ({ cookingSteps, onComplete, onPrev }) => {
   // Solo permitir avanzar si:
   // - No hay quiz, O
   // - Hay quiz y ya verificó y acertó
-  const canAdvance = !hasQuiz || (hasVerified && isCorrect);
+  const canAdvance = !hasQuiz || (hasVerified && selectionIsCorrect);
   return (
    <div className="space-y-6">
       
@@ -93,15 +93,20 @@ const CookingScreen = ({ cookingSteps, onComplete, onPrev }) => {
               return (
                 <button
                   key={index}
-                  onClick={() => !hasVerified && setSelectedAnswer(index)}
-                  disabled={hasVerified}
+                  onClick={() => {
+                    if (hasVerified && !selectionIsCorrect) {
+                      setHasVerified(false);
+                    }
+                    setSelectedAnswer(index);
+                  }}
+                  disabled={hasVerified && selectionIsCorrect}
                   className={`
                     w-full rounded-xl border-2 p-4 text-left transition-all
                     ${!hasVerified && isSelected ? 'border-amber bg-amber-50' : ''}
                     ${!hasVerified && !isSelected ? 'border-stone-300 hover:border-stone-400' : ''}
                     ${showFeedback && isThisCorrect ? 'border-green-500 bg-green-50' : ''}
                     ${showFeedback && !isThisCorrect && isSelected ? 'border-red-500 bg-red-50' : ''}
-                    ${hasVerified ? 'cursor-not-allowed' : 'cursor-pointer'}
+                    ${hasVerified && selectionIsCorrect ? 'cursor-not-allowed' : 'cursor-pointer'}
                   `}
                 >
                   <div className="flex items-start gap-3">
@@ -136,19 +141,30 @@ const CookingScreen = ({ cookingSteps, onComplete, onPrev }) => {
 
           {/* Feedback post-verificación */}
           {hasVerified && (
-            <div className={`rounded-xl border-2 p-4 ${isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
-              <p className={`font-semibold ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
-                {isCorrect ? '¡Correcto! ✓' : 'Incorrecto ✗'}
+            <div className={`rounded-xl border-2 p-4 ${selectionIsCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
+              <p className={`font-semibold ${selectionIsCorrect ? 'text-green-800' : 'text-red-800'}`}>
+                {selectionIsCorrect ? '¡Correcto! ✓' : 'Incorrecto ✗'}
               </p>
               <p className="mt-2 text-sm text-stone-700">
                 {currentStep.explanation}
               </p>
-              {isCorrect && currentStep.xp > 0 && (
+              {selectionIsCorrect && currentStep.xp > 0 && (
                 <p className="mt-2 text-sm font-semibold text-amber-700">
                   +{currentStep.xp} XP ganados
                 </p>
               )}
             </div>
+          )}
+          {triedIncorrectly && (
+            <button
+              onClick={() => {
+                setHasVerified(false);
+                setSelectedAnswer(null);
+              }}
+              className="w-full rounded-xl border-2 border-red-500 bg-red-50 py-3 text-red-700 hover:bg-red-100"
+            >
+              Volver a intentar
+            </button>
           )}
         </div>
       )}
