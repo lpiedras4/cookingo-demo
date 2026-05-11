@@ -4,7 +4,8 @@ import WelcomeScreen from "./WelcomeScreen";
 import { TOTAL_SCREENS } from "../../data/lessons";
 import IngredientsScreen from "./IngredientsScreen";
 import  ResultsScreen  from "./ResultsScreen";
-
+import  PrepOrderScreen  from "./PrepOrderScreen";
+import  CookingScreen  from "./CookingScreen"; 
 /*
 Orquesta el flujo de 5 pantallas de una lección
 Este componente sabe en qué paso estamos
@@ -19,7 +20,7 @@ const XP_PER_SCREEN = { // XP otorgado por pantalla
   1:0,    // Bienvenida: sin XP
   2: 15,  // Ingredientes: 15 XP por completar la compra
   3: 10,  // Prep: 10 XP por ordenar correctamente
-  4: 40,  // Cocina: 40 XP de los quizzes (suma de todos los pasos)
+  4: 0,  // Cocina: 40 XP de los quizzes (suma de todos los pasos)
   5: 10,  // Resultados: 10 XP bonus por completar
  
 };
@@ -41,6 +42,15 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
 
 
   const prev = () => setStep((s) => Math.max(1, s - 1));
+
+   const handleCookingComplete = (cookingXp) => {
+    // El XP viene de los quizzes, no de XP_PER_SCREEN
+    onEarnXp(cookingXp);
+    setTotalXpEarned((prev) => prev + cookingXp);
+    
+    // Avanzar automáticamente a la pantalla de resultados
+    setStep(5);
+  };
 
   return (
     <div>
@@ -70,16 +80,16 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
         />
       )}
       {step === 3 && (
-        <PlaceholderScreen
-          title="📋 Prepara los ingredientes"
-          onNext={next}
-          onPrev={prev}
+        <PrepOrderScreen
+        prepOrder={lesson.prepOrder}
+        onNext={next}
+        onPrev={prev}
         />
       )}
       {step === 4 && (
-        <PlaceholderScreen
-          title="🍳 ¡Hagamos el platillo!"
-          onNext={next}
+        <CookingScreen
+          cookingSteps={lesson.cookingSteps}
+          onComplete={handleCookingComplete}
           onPrev={prev}
         />
       )}

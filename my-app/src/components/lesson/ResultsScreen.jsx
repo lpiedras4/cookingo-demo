@@ -20,7 +20,7 @@ const ResultsScreen = ({lesson, xpEarned, onPrev}) => {
 
       {/* Header de celebración */}
       <header className="text-center">
-        <div className="mx-auto h-24 w-24 rounded-full bg-gradient-to-br from-amber to-orange flex items-center justify-center text-5xl shadow-lg">
+        <div className="mx-auto h-24 w-24 rounded-full bg-linear-to-br from-amber to-orange flex items-center justify-center text-5xl shadow-lg">
           🎉
         </div>
         <h2 className="mt-4 font-display text-3xl font-bold text-forest">
@@ -32,7 +32,7 @@ const ResultsScreen = ({lesson, xpEarned, onPrev}) => {
       </header>
 
       {/* Card de XP ganado */}
-      <div className="rounded-3xl bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 p-6 text-center">
+      <div className="rounded-3xl bg-linear-to-br from-amber-50 to-orange-50 border-2 border-amber-200 p-6 text-center">
         <p className="text-sm uppercase tracking-wide text-amber-800 font-semibold">
           Experiencia ganada
         </p>
