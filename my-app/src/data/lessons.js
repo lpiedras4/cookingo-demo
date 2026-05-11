@@ -11,6 +11,7 @@
  * @property {string} description   - frase corta de la tarjeta nutricional
  * @property {string} nutritionNote - nutrientes destacados (ej. "Beta-glucanos, fibra soluble")
  * @property {string} portionNote   - tamaño de porción legible (ej. "1/2 taza (45g)")
+ * @property {numbre} price
  */
 
 /**
@@ -73,6 +74,7 @@ export const lessons = [
         description: "Base del desayuno: absorbe la leche y se vuelve cremosa al hidratarse en frío.",
         nutritionNote: "Beta-glucanos, fibra soluble, magnesio",
         portionNote: "1/2 taza (45g)",
+        price: 35,
       },
       {
         id: "leche",
@@ -82,6 +84,7 @@ export const lessons = [
         description: "Líquido base. Elige sin azúcar añadida para controlar el dulzor total.",
         nutritionNote: "Calcio, vitamina D, proteína vegetal",
         portionNote: "1/2 taza (120ml)",
+        price:30
       },
       {
         id: "cacahuate",
@@ -91,6 +94,7 @@ export const lessons = [
         description: "Grasa saludable que sacia y aporta cremosidad al mezclar.",
         nutritionNote: "Grasas monoinsaturadas, proteína, vitamina E",
         portionNote: "2 cucharadas (30g)",
+        price: 70
       },
       {
         id: "lino",
@@ -100,6 +104,7 @@ export const lessons = [
         description: "Pequeñas pero poderosas: omega-3 vegetal y fibra que espesa la textura.",
         nutritionNote: "Omega-3 (ALA), lignanos, fibra insoluble",
         portionNote: "1 cucharada (10g)",
+        price: 30
       },
       {
         id: "canela",
@@ -109,6 +114,7 @@ export const lessons = [
         description: "Sabor y beneficio: ayuda a regular el azúcar en sangre después de comer.",
         nutritionNote: "Cinnamaldehído, antioxidantes, antiinflamatorio",
         portionNote: "1/2 cucharadita",
+        price:40
       },
       {
         id: "miel",
@@ -118,6 +124,7 @@ export const lessons = [
         description: "Dulzor natural con menor impacto glucémico que el azúcar refinada.",
         nutritionNote: "Fructosa, antioxidantes, propiedades antimicrobianas",
         portionNote: "1 cucharadita",
+        price: 70
       },
     ],
 

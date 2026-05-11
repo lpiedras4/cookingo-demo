@@ -8,6 +8,7 @@ import LessonPage from "./_root/pages/LessonPage";
 import Home from "./_root/pages/Home";
 import Profile from "./_root/pages/Profile";
 import Recipes from "./_root/pages/Recipes"
+import RecipePage from "./_root/pages/RecipePage";
 
 const App = () => {
   return (
@@ -17,7 +18,7 @@ const App = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/lesson/:lessonId" element={<LessonPage />} />
         <Route path="/recipes" element={<Recipes/>}/>
-
+        <Route path="/recipes/:lessonId" element={<RecipePage/>} />
         {/* Ruta 404 - cualquier URL que no exista redirige a Home */}
         <Route path="*" element={<NotFound/>} />
       </Routes>
