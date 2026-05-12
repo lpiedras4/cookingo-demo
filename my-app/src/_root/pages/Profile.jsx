@@ -1,39 +1,51 @@
-import React from 'react'
-import {useNavigate} from  "react-router-dom";
-import {lessons} from "../../data/lessons";
-import {useProgress} from "../../hooks/useProgress";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { lessons } from "../../data/lessons";
+import { useProgress } from "../../hooks/useProgress";
 
 const Profile = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const { xp, completedLessons, badges, resetProgress } = useProgress();
 
   const level = Math.floor(xp / 100) + 1;
   const xpActual = xp % 100;
   const porcentaje = (xpActual / 100) * 100;
-  // Logros hardcodeados
+
   const logros = [
-    { id: 1, emoji: "🥇", nombre: "Primera lección", ganado: completedLessons.length >= 1 },
+    {
+      id: 1,
+      emoji: "🥇",
+      nombre: "Primera lección",
+      ganado: completedLessons.length >= 1,
+    },
     { id: 2, emoji: "🔥", nombre: "Racha de 3 días", ganado: false }, // implementar lógica después
-    { id: 3, emoji: "🗺️", nombre: "Explorador", ganado: completedLessons.length >= 3 },
-    { id: 4, emoji: "⭐", nombre: "Maestro", ganado: completedLessons.length >= 5 },
+    {
+      id: 3,
+      emoji: "🗺️",
+      nombre: "Explorador",
+      ganado: completedLessons.length >= 3,
+    },
+    {
+      id: 4,
+      emoji: "⭐",
+      nombre: "Maestro",
+      ganado: completedLessons.length >= 5,
+    },
     { id: 5, emoji: "👨‍🍳", nombre: "Chef experto", ganado: xp >= 500 },
     { id: 6, emoji: "💎", nombre: "Perfeccionista", ganado: false },
   ];
 
-
   const handleReset = () => {
     const confirmed = window.confirm(
-      "¿Estás seguro? Esto borrará todo tu progreso (XP, lecciones, badges). Esta acción no se puede deshacer."
+      "¿Estás seguro? Esto borrará todo tu progreso (XP, lecciones, badges). Esta acción no se puede deshacer.",
     );
     if (confirmed) {
       resetProgress();
     }
   };
 
-
   return (
     <div className="mx-auto max-w-4xl px-5 py-6 md:px-8">
-      
       {/* Header */}
       <header className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-3xl font-bold text-stone-800">
@@ -76,14 +88,18 @@ const Profile = () => {
               </div>
 
               <div className="rounded-xl border-2 border-stone-200 bg-stone-50 px-3 py-2 text-center">
-                <p className="font-display text-lg font-bold text-forest">{xp}</p>
+                <p className="font-display text-lg font-bold text-forest">
+                  {xp}
+                </p>
                 <p className="text-xs font-bold uppercase tracking-wide text-stone-400">
                   XP
                 </p>
               </div>
 
               <div className="rounded-xl border-2 border-stone-200 bg-stone-50 px-3 py-2 text-center">
-                <p className="font-display text-lg font-bold text-orange">3🔥</p>
+                <p className="font-display text-lg font-bold text-orange">
+                  3🔥
+                </p>
                 <p className="text-xs font-bold uppercase tracking-wide text-stone-400">
                   Racha
                 </p>
@@ -95,7 +111,6 @@ const Profile = () => {
 
       {/* Grid de mini cards */}
       <div className="mb-5 grid grid-cols-2 gap-3">
-        
         {/* Card de nivel */}
         <div className="rounded-2xl border-2 border-stone-200 bg-white p-4 shadow-card">
           <p className="mb-3 text-xs font-bold uppercase tracking-wide text-stone-400">
@@ -147,11 +162,11 @@ const Profile = () => {
                 className={`flex h-10 w-10 items-center justify-center rounded-xl text-xl transition-all ${
                   logro.ganado
                     ? "border-2 border-amber bg-amber-50"
-                    : "border-2 border-stone-200 bg-stone-100 opacity-40 grayscale"
+                    : "border-2 border-stone-200 bg-stone-100"
                 }`}
                 title={logro.nombre}
               >
-                {logro.ganado ? logro.emoji : "🔒"}
+                {logro.emoji}
               </div>
             ))}
           </div>
@@ -180,7 +195,9 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="p-2 text-center">
-                  <p className="text-xs font-bold text-stone-700">{lesson.name}</p>
+                  <p className="text-xs font-bold text-stone-700">
+                    {lesson.name}
+                  </p>
                 </div>
               </div>
             ))}
@@ -200,10 +217,8 @@ const Profile = () => {
           Restablecer progreso
         </button>
       </div>
-
     </div>
   );
-  
-}
+};
 
-export default Profile
+export default Profile;
