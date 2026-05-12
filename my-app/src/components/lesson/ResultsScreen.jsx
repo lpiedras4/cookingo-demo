@@ -84,7 +84,7 @@ const ResultsScreen = ({ lesson, xpEarned, onPrev }) => {
         >
           📖 Ver receta completa
         </button>
-        <button
+        {/*<button
           onClick={() => navigate("/recipes")}
           className="w-full rounded-2xl bg-forest py-4 font-bold text-white shadow hover:bg-forest-dark transition-all active:scale-95"
         >
@@ -96,7 +96,7 @@ const ResultsScreen = ({ lesson, xpEarned, onPrev }) => {
           className="w-full rounded-2xl border-2 border-forest py-4 font-bold text-forest hover:bg-forest hover:text-white transition-all"
         >
           🏠 Hacer otra lección
-        </button>
+        </button>*/}
 
         <button
           onClick={onPrev}
