@@ -49,21 +49,16 @@ const Profile = () => {
       {/* Header */}
       <header className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-3xl font-bold text-stone-800">
-          Cookin<span className="text-orange">Go</span>
+          Perfil
         </h1>
-        <button
-          onClick={() => navigate("/")}
-          className="rounded-full border-2 border-forest px-5 py-2 font-body text-sm font-extrabold text-forest hover:bg-forest hover:text-white transition-colors"
-        >
-          ← Volver
-        </button>
+      
       </header>
 
       {/* Card principal de perfil */}
       <div className="mb-4 rounded-3xl border-2 border-stone-200 bg-white p-6 shadow-card">
         <div className="flex items-center gap-5">
           {/* Avatar */}
-          <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full border-4 border-forest-dark bg-forest font-display text-2xl font-bold text-white">
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-4 border-forest-dark bg-forest font-display text-2xl font-bold text-white">
             PLC
           </div>
 
@@ -96,14 +91,14 @@ const Profile = () => {
                 </p>
               </div>
 
-              <div className="rounded-xl border-2 border-stone-200 bg-stone-50 px-3 py-2 text-center">
+             {/*<div className="rounded-xl border-2 border-stone-200 bg-stone-50 px-3 py-2 text-center">
                 <p className="font-display text-lg font-bold text-orange">
                   3🔥
                 </p>
                 <p className="text-xs font-bold uppercase tracking-wide text-stone-400">
                   Racha
                 </p>
-              </div>
+              </div> */} 
             </div>
           </div>
         </div>
@@ -117,13 +112,13 @@ const Profile = () => {
             Tu Nivel
           </p>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-forest-dark bg-forest font-display text-sm font-bold text-white">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-forest-dark bg-forest font-display text-sm font-bold text-white">
               {level}
             </div>
             <div className="flex-1">
               <div className="h-2.5 overflow-hidden rounded-full border-2 border-green-200 bg-green-50">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-forest to-amber transition-all"
+                  className="h-full rounded-full bg-linear-to-r from-forest to-amber transition-all"
                   style={{ width: `${porcentaje}%` }}
                 />
               </div>
@@ -188,7 +183,7 @@ const Profile = () => {
                 key={lesson.id}
                 className="overflow-hidden rounded-2xl border-2 border-stone-200 bg-white"
               >
-                <div className="relative flex h-20 items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 text-4xl">
+                <div className="relative flex h-20 items-center justify-center bg-linear-to-br from-amber-50 to-orange-50 text-4xl">
                   {lesson.dishEmoji}
                   <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-forest text-xs font-bold text-white">
                     ✓
