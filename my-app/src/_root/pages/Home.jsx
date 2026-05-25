@@ -24,7 +24,7 @@ const Home = () => {
       <div className="mb-6 rounded-3xl border-2 border-green-200 bg-white p-6 shadow-card">
         <div className="flex items-center gap-4">
           {/* Avatar */}
-          <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full border-4 border-forest-dark bg-forest font-display text-2xl font-bold text-white">
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-4 border-forest-dark bg-forest font-display text-2xl font-bold text-white">
             {level}
           </div>
           
