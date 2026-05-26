@@ -45,8 +45,8 @@ const CookingScreen = ({ cookingSteps, onComplete, onPrev }) => {
   };
 
   // Solo permitir avanzar si:
-  // - No hay quiz, O
-  // - Hay quiz y ya verificó y acertó
+  //  No hay quiz, O
+  //  Hay quiz y ya verificó y acertó
   const canAdvance = !hasQuiz || (hasVerified && selectionIsCorrect);
   return (
    <div className="space-y-6">
