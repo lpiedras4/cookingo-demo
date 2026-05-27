@@ -1,6 +1,6 @@
 import React from "react";
-
-const SignInForm = () => {
+import { Link, useNavigate } from 'react-router-dom';
+const SignInForm = ({onClick}) => {
   return (
     <div className="px-4 py-4 w-90 rounded-xl bg-amber">
       <form className="max-w-sm mx-auto ">
@@ -37,7 +37,7 @@ const SignInForm = () => {
         <div className="flex flex-col items-center mb-5 space-y-5">
         
          <p>
-          No tienes una cuenta? <a className="hover:underline hover:text-blue-700"> Crear cuenta </a>
+          No tienes una cuenta? <Link className="hover:underline hover:text-blue-700"> Crear cuenta </Link>
          </p>
             <button
           type="submit"
