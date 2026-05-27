@@ -22,7 +22,7 @@ const CreateRecipeCard = ({ onClose }) => {
   return (
     <section
       onClick={(e) => e.stopPropagation()}
-      className="max-w-4xl p-6 mx-auto bg-white rounded-md shadow-md dark:bg-gray-800"
+      className="max-w-4xl p-6 mx-auto  rounded-md shadow-md bg-forest-dark"
     >
       <div className="flex justify-between">
         <h2 className="text-lg font-semibold text-gray-700 capitalize dark:text-white">

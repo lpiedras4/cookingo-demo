@@ -10,11 +10,17 @@ import Profile from "./_root/pages/Profile";
 import Recipes from "./_root/pages/Recipes"
 import RecipePage from "./_root/pages/RecipePage";
 import SettingsPage from "./_root/pages/SettingsPage";
+import SignInForm from "./_root/auth/forms/SignInForm";
+import SignupForm from "./_root/auth/forms/SignupForm";
+import AuthPage from "./_root/auth/AuthPage";
+
 
 const App = () => {
   return (
     <AppShell>
       <Routes>
+        <Route path = "/auth" element={<AuthPage/>} />
+        
         <Route path="/" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/lesson/:lessonId" element={<LessonPage />} />
