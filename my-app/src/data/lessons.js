@@ -50,7 +50,7 @@
 export const lessons = [
   {
     id: "overnight-oats",
-    name: "Overnight Oats",
+    name: "Avena de noche",
     cuisine: "Desayuno saludable",
     description: "Avena remojada en frío: un desayuno cremoso, nutritivo y listo al despertar. 5 minutos de prep.",
     dishEmoji: "🥣",
@@ -59,9 +59,9 @@ export const lessons = [
     servings: 2,
 
     highlights: [
-      { icon: "🌙", title: "Se prepara la noche anterior", detail: "Listo en 5 min antes de dormir" },
-      { icon: "🌾", title: "Energía de liberación lenta",  detail: "Beta-glucanos que sacian por horas" },
-      { icon: "🌱", title: "Vegano y sin gluten",         detail: "Con avena certificada sin gluten" },
+      {  title: "Se prepara la noche anterior", detail: "Listo en 5 min antes de dormir" },
+      {  title: "Energía de liberación lenta",  detail: "Beta-glucanos que sacian por horas" },
+      { title: "Vegano y sin gluten",         detail: "Con avena certificada sin gluten" },
     ],
 
     // Pantalla 2/5: el "Mercado" muestra estas tiles en cuadrícula
