@@ -15,7 +15,7 @@
  */
 
 /**
- * Pantalla 4/5 — "¡Hagamos el platillo!"
+ * Pantalla 4/5 — "Preparación de platillo"
  * Cada paso tiene instrucción + quiz opcional.
  * `question` y `options` son opcionales — no todos los pasos tienen quiz.
  *

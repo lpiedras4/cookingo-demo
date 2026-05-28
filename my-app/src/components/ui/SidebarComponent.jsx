@@ -3,6 +3,7 @@ import {
   HomeIcon,
   UserCircleIcon,
   Cog6ToothIcon,
+  BookOpenIcon
 } from "@heroicons/react/24/solid";
 
 const SidebarComponent = () => {
@@ -11,7 +12,9 @@ const SidebarComponent = () => {
       <nav className="flex flex-col gap-6">
         <NavItem to="/" icon={HomeIcon} label="Inicio" />
         <NavItem to="/profile" icon={UserCircleIcon} label="Perfil" />
+        <NavItem to="/recipes" icon={BookOpenIcon} label="Recetas" />
         <NavItem to="/settings" icon={Cog6ToothIcon} label="Configuración" />
+        
       </nav>
     </aside>
   );
