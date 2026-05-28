@@ -11,6 +11,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
+import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
+import {AppShell} from "./components/layout/AppShell";
 import LessonPage from "./_root/pages/LessonPage";
 import Home from "./_root/pages/Home";
 import Profile from "./_root/pages/Profile";
