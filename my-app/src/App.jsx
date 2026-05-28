@@ -4,6 +4,8 @@ import LessonFlow from "./components/lesson/LessonFlow";
 import { useProgress } from "./hooks/useProgress";
 import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
+import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
+import {AppShell} from "./components/layout/AppShell";
 import LessonPage from "./_root/pages/LessonPage";
 import Home from "./_root/pages/Home";
 import Profile from "./_root/pages/Profile";
@@ -13,6 +15,7 @@ import SettingsPage from "./_root/pages/SettingsPage";
 import SignInForm from "./_root/auth/forms/SignInForm";
 import SignupForm from "./_root/auth/forms/SignupForm";
 import AuthPage from "./_root/auth/AuthPage";
+import DiagnosticExam from "./_root/pages/DiagnosticExam";
 
 const App = () => {
   return (
@@ -30,12 +33,30 @@ const App = () => {
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/recipes/:lessonId" element={<RecipePage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/recipes" element={<Recipes/>}/>
+        <Route path="/recipes/:lessonId" element={<RecipePage/>} />
+        <Route path="/settings" element={<SettingsPage/>} />
+        <Route path="/diagnostic" element={<DiagnosticExamWrapper />} />
         {/* Ruta 404 - cualquier URL que no exista redirige a Home */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AppShell>
   );
 };
+
+function DiagnosticExamWrapper() {
+  const navigate = useNavigate();
+  const {assignLevel} = useProgress();
+  return (
+    <DiagnosticExam
+      username="Juan85"
+      onFinish={(level) => {
+        assignLevel(level);
+        navigate("/");
+      }} 
+    />
+  );
+}
 
 function NotFound() {
   return (

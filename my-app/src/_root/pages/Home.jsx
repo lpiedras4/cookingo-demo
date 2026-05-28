@@ -6,8 +6,8 @@ import { useState } from "react";
 import CreateRecipeCard from "../../components/ui/cards/CreateRecipeCard";
 const Home = () => {
   const [showForm, setShowForm] = useState(false);
-  const { xp, completedLessons } = useProgress();
-  const level = Math.floor(xp / 100) + 1;
+  const { xp, completedLessons, inicialLevel: diagnosticLevel } = useProgress();
+  const level = diagnosticLevel + Math.floor(xp / 100) + 1;
   const xpActual = xp % 100;
   const porcentaje = (xpActual / 100) * 100;
   return (
