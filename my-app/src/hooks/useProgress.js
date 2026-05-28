@@ -26,6 +26,7 @@ const INITIAL_STATE = {
   xp: 0,
   completedLessons: [],
   badges: [],
+  level: null,
   lastUpdated: Date.now(),
 };
 
@@ -110,6 +111,15 @@ export function useProgress() {
       }
     };
   }, []);
+
+  /*Funcion que asigna nivel*/
+  const assignLevel = (level) => {
+    setState((prev) => ({
+      ...prev,
+      level,
+    }));
+  }
+
   //Funciones para modificar el estado
   const addXp = (points) => {
     setState((prev) => ({
@@ -157,9 +167,11 @@ export function useProgress() {
     xp: state.xp,
     completedLessons: state.completedLessons,
     badges: state.badges,
+    inicialLevel: state.level,
     addXp,
     markLessonComplete,
     unlockBadge,
+    assignLevel,
     resetProgress,
   };
 }
