@@ -6,8 +6,8 @@ import { useState } from "react";
 import CreateRecipeCard from "../../components/ui/cards/CreateRecipeCard";
 const Home = () => {
   const [showForm, setShowForm] = useState(false);
-  const { xp, completedLessons } = useProgress();
-  const level = Math.floor(xp / 100) + 1;
+  const { xp, completedLessons, inicialLevel: diagnosticLevel } = useProgress();
+  const level = diagnosticLevel + Math.floor(xp / 100) + 1;
   const xpActual = xp % 100;
   const porcentaje = (xpActual / 100) * 100;
   return (
@@ -21,22 +21,8 @@ const Home = () => {
           <button className="rounded-full border-b-4 border-forest-dark bg-forest px-5 py-2.5 font-body text-sm font-extrabold text-white hover:bg-forest-dark transition-colors">
             + Desafíos
           </button>
-          <button 
-          onClick={() => setShowForm(true)}
-          className="rounded-full border-b-4 border-forest-dark bg-forest px-5 py-2.5 font-body text-sm font-extrabold text-white hover:bg-forest-dark transition-colors">
-            + Crear receta
-          </button>
         </div>
       </header>
-
-      {showForm && (
-        <div 
-        className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-            <CreateRecipeCard onClose={()=> setShowForm(false)}/>
-        </div>
-      )}
-
-
 
       {/* Card de XP y nivel */}
       <div className="mb-6 rounded-3xl border-2 border-green-200 bg-white p-6 shadow-card">

@@ -3,6 +3,7 @@ import {
   HomeIcon,
   UserCircleIcon,
   Cog6ToothIcon,
+  BookOpenIcon
 } from "@heroicons/react/24/solid";
 
 const Bottombar = () => {
@@ -10,7 +11,9 @@ const Bottombar = () => {
     <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around border-t border-stone-200 bg-forest py-3 shadow-nav md:hidden">
       <NavItem to="/" icon={HomeIcon} label="Inicio" />
       <NavItem to="/profile" icon={UserCircleIcon} label="Perfil" />
+      <NavItem to="/recipes" icon={BookOpenIcon} label="Recetas" />
       <NavItem to="/settings" icon={Cog6ToothIcon} label="Configuración" />
+      
     </nav>
   );
 };

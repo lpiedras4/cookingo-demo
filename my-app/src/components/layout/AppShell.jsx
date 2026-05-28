@@ -3,7 +3,7 @@ import Bottombar from "../ui/Bottombar";
 
 export function AppShell({ children }) {
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen">
       {/* SIDEBAR - visible solo en pantallas grandes (≥768px) */}
       <SidebarComponent />
 

@@ -112,7 +112,7 @@ const IngredientsScreen = ({ ingredients, onNext, onPrev }) => {
         />
       )}
   
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-stone-200 p-4 shadow-nav md:left-18 z-30">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-stone-200 py-4 px-2 shadow-nav md:left-18 z-30">
         <div className="mx-auto max-w-md">
           <div className="flex items-center justify-between gap-4">
             {/* Info del carrito */}
