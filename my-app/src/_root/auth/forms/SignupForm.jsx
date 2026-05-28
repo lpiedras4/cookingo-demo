@@ -23,9 +23,9 @@ const SignupForm = ({
     }
   };
 
-  const onGoToLogin = () =>{
-    navigate("/sign-in")
-  }
+  const onGoToLogin = () => {
+    navigate("/sign-in");
+  };
 
   return (
     <div className="min-h-screen  flex items-center justify-center bg-[#f3faf2] px-4">
@@ -57,6 +57,23 @@ const SignupForm = ({
               name="username"
               type="text"
               placeholder="Nombre del usuario"
+              className="w-full rounded-md border border-green-600 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-500 focus:border-green-800 focus:ring-2 focus:ring-green-100"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="age"
+              className="mb-2 block text-sm font-medium text-green-700"
+            >
+              Edad
+            </label>
+
+            <input
+              id="age"
+              name="age"
+              type="text"
+              placeholder="Ingresa tu edad"
               className="w-full rounded-md border border-green-600 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-500 focus:border-green-800 focus:ring-2 focus:ring-green-100"
             />
           </div>
