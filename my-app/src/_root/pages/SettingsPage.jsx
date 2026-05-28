@@ -14,7 +14,7 @@ const SettingsPage = () => {
         <li className='hover:bg-forest hover:text-white py-3 px-3 rounded-full cursor-pointer transition-all duration-300'>Cuenta</li>
         <li className='hover:bg-forest hover:text-white py-3 px-3 rounded-full cursor-pointer transition-all duration-300'>Repetir examen</li>
         <li className='hover:bg-forest hover:text-white py-3 px-3 rounded-full cursor-pointer transition-all duration-300'> Experiencia</li>
-        <li className='hover:bg-forest hover:text-white py-3 px-3 rounded-full cursor-pointer transition-all duration-300'> Privacidad </li>
+        <li className='hover:bg-forest hover:text-white py-3 px-3 rounded-full cursor-pointer transition-all duration-300'> Equipo de Cookingo</li>
       </ul>
     </div>
 
