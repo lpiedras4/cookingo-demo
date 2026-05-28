@@ -2,8 +2,6 @@ import React from "react";
 import { getLesson } from "./data/lessons";
 import LessonFlow from "./components/lesson/LessonFlow";
 import { useProgress } from "./hooks/useProgress";
-import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
-import { AppShell } from "./components/layout/AppShell";
 import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
 import {AppShell} from "./components/layout/AppShell";
 import LessonPage from "./_root/pages/LessonPage";
