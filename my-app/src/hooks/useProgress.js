@@ -24,7 +24,7 @@ const STORAGE_VERSION = 1; //Versionado para migraciones
 const INITIAL_STATE = {
   version: STORAGE_VERSION,
   xp: 0,
-  completedLessons: [],
+  completedLessons: [], 
   badges: [],
   lastUpdated: Date.now(),
 };
