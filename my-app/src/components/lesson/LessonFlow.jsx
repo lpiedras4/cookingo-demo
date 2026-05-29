@@ -1,11 +1,12 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import WelcomeScreen from "./WelcomeScreen";
 import { TOTAL_SCREENS } from "../../data/lessons";
 import IngredientsScreen from "./IngredientsScreen";
 import  ResultsScreen  from "./ResultsScreen";
 import  PrepOrderScreen  from "./PrepOrderScreen";
 import  CookingScreen  from "./CookingScreen"; 
+import { XMarkIcon } from "@heroicons/react/24/solid";
 /*
 Orquesta el flujo de 5 pantallas de una lección
 Este componente sabe en qué paso estamos
@@ -26,9 +27,12 @@ const XP_PER_SCREEN = { // XP otorgado por pantalla
 };
 
 
-const LessonFlow = ({ lesson, onEarnXp }) => {
+const LessonFlow = ({ lesson, onEarnXp, onCompleteLesson }) => {
   const [step, setStep] = useState(1);
   const [totalXpEarned, setTotalXpEarned]= useState(0);
+  const [showAbandonModal, setShowAbandonModal] = useState(false);
+  const navigate = useNavigate();
+
   const next = () => {
     const nextStep = Math.min(TOTAL_SCREENS, step + 1);
     setStep(nextStep);
@@ -40,20 +44,41 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
     }
   };
 
+  const openAbandonModal = () => setShowAbandonModal(true);
+  const closeAbandonModal = () => setShowAbandonModal(false);
+  const confirmAbandon = () => {
+    setShowAbandonModal(false);
+    navigate("/", { replace: true });
+  };
+
 
   const prev = () => setStep((s) => Math.max(1, s - 1));
 
    const handleCookingComplete = (cookingXp) => {
     // El XP viene de los quizzes, no de XP_PER_SCREEN
     onEarnXp(cookingXp);
+    onCompleteLesson?.();
     setTotalXpEarned((prev) => prev + cookingXp);
     
     // Avanzar automáticamente a la pantalla de resultados
     setStep(5);
   };
 
+
   return (
     <div>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-stone-600">Paso {step} de {TOTAL_SCREENS}</p>
+        </div>
+        <XMarkIcon
+          onClick={openAbandonModal}
+          className="h-7 w-7 hover:text-red-500 transition"
+        />
+        
+       
+      </div>
+
       {/*Barra de progreso */}
       <div className="mb-2 flex items-center gap-3">
         <div className="flex-1 h-1.5 rounded-full bg-stone-200">
@@ -76,7 +101,6 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
         <IngredientsScreen
         ingredients={lesson.ingredients}
         onNext={next}
-        onPrev={prev}
         onEarnXp = {onEarnXp}
         />
       )}
@@ -84,7 +108,6 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
         <PrepOrderScreen
         prepOrder={lesson.prepOrder}
         onNext={next}
-        onPrev={prev}
         onEarnXp={onEarnXp}
         />
       )}
@@ -92,15 +115,49 @@ const LessonFlow = ({ lesson, onEarnXp }) => {
         <CookingScreen
           cookingSteps={lesson.cookingSteps}
           onComplete={handleCookingComplete}
-          onPrev={prev}
         />
       )}
       {step === 5 && (
         <ResultsScreen
           lesson={lesson}
           xpEarned={totalXpEarned}
-          onPrev={prev}
         />
+      )}
+
+      {showAbandonModal && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/50"
+            onClick={closeAbandonModal}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <h2 className="text-xl font-bold text-stone-900">¿Abandonar la lección?</h2>
+              <p className="mt-3 text-sm leading-6 text-stone-600">
+                Si abandonas la lección ahora, tu progreso no se guardará. ¿Quieres volver a la lección o salir al inicio?
+              </p>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <button
+                  onClick={closeAbandonModal}
+                  className="rounded-2xl border border-stone-300 bg-stone-100 px-5 py-3 text-sm font-semibold text-stone-700 hover:bg-stone-200 transition"
+                >
+                  Volver a la lección
+                </button>
+                <button
+                  onClick={confirmAbandon}
+                  className="rounded-2xl bg-red-500 px-5 py-3 text-sm font-semibold text-white hover:bg-red-600 transition"
+                >
+                  Abandonar y volver al inicio
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

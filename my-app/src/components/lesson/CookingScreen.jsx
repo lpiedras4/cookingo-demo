@@ -180,14 +180,8 @@ const CookingScreen = ({ cookingSteps, onComplete, onPrev }) => {
           </button>
         )}
         
-        {currentStepIndex === 0 && (
-          <button
-            onClick={onPrev}
-            className="flex-1 rounded-2xl border border-stone-300 py-3 text-stone-600 hover:bg-stone-100"
-          >
-            ← Atrás
-          </button>
-        )}
+        
+       
 
         <button
           onClick={handleNext}

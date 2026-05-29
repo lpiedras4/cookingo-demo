@@ -7,18 +7,18 @@ import UserProgressBar from '../../components/ui/UserProgressBar';
 const LessonPage = () => {
   const {lessonId} = useParams();
   const lesson = getLesson("overnight-oats");
-  const {xp,addXp} = useProgress();
+  const {xp,addXp, markLessonComplete} = useProgress();
 
   if(!lesson){
     return <Navigate to="/" replace />;
   }
   return (
-      <main className="mx-auto min-h-screen max-w-md bg-cream px-5 py-6">
+      <main className="mx-auto min-h-screen max-w-xlg bg-cream px-5 py-6">
       
       {/* Header con XP total del usuario */}
       <UserProgressBar xp={xp} onEarnXp={addXp}/>
 
-      <LessonFlow lesson={lesson} onEarnXp={addXp} />
+      <LessonFlow lesson={lesson} onEarnXp={addXp} onCompleteLesson={() => markLessonComplete(lesson.id)}/>
     </main>
   )
 }
