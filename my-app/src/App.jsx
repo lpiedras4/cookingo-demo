@@ -29,12 +29,14 @@ const App = () => {
         </Route>
 
         {/*private routes*/}
+        <Route path="/lesson/:lessonId" element={<LessonPage />} />
+        <Route path="/recipes/:lessonId" element={<RecipePage />} />
         <Route path="/" element={<Wrapper><AppShell /></Wrapper>}>
         <Route path="/" element={<Home/>}/>
          <Route path="/profile" element={<Profile />} />
-        <Route path="/lesson/:lessonId" element={<LessonPage />} />
+        
         <Route path="/recipes" element={<Recipes />} />
-        <Route path="/recipes/:lessonId" element={<RecipePage />} />
+        
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/recipes/:lessonId" element={<RecipePage />} />
