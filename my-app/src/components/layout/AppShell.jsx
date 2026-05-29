@@ -10,7 +10,7 @@ export function AppShell({ children }) {
       <SidebarComponent />
 
       {/* CONTENIDO PRINCIPAL */}
-      <section className="pb-20 md:ml-18 md:pb-0">
+      <section className="pt-10 pb-20 md:ml-18 md:pb-0">
         <Outlet/>
         </section>
 

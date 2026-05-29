@@ -272,12 +272,7 @@ const PrepOrderScreen = ({ prepOrder, onNext, onPrev, onEarnXp }) => {
 
       {/* Botones */}
       <div className="flex gap-3 pt-4">
-        <button
-          onClick={onPrev}
-          className="flex-1 rounded-2xl border border-stone-300 py-3 text-stone-600 hover:bg-stone-100"
-        >
-          ← Atrás
-        </button>
+       
         <button
           onClick={onNext}
           disabled={!allCorrect}

@@ -1,10 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { lessons } from "../../data/lessons";
 import { useProgress } from "../../hooks/useProgress";
 import { useState } from "react";
 import CreateRecipeCard from "../../components/ui/cards/CreateRecipeCard";
 const Home = () => {
+  const navigate = useNavigate();
+  const showRecipeScreen = () =>{
+    navigate("/recipes/:lessonId")
+  }
   const [showForm, setShowForm] = useState(false);
   const { xp, completedLessons, inicialLevel: diagnosticLevel } = useProgress();
   const level = diagnosticLevel + Math.floor(xp / 100) + 1;
@@ -15,7 +20,7 @@ const Home = () => {
       {/* Header con logo y botón */}
       <header className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-3xl font-bold text-stone-800">
-          Cookin<span className="text-orange">Go</span>
+          Inicio
         </h1>
         <div className="space-x-3 sm:flex flex">
           <button className="rounded-full border-b-4 border-forest-dark bg-forest px-5 py-2.5 font-body text-sm font-extrabold text-white hover:bg-forest-dark transition-colors">
@@ -133,20 +138,32 @@ const Home = () => {
       {/* Sección de recetas completadas */}
       {completedLessons.length > 0 && (
         <section>
-          <h2 className="mb-4 font-display text-2xl font-bold text-stone-800">
-            Recetas completadas
-          </h2>
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="font-display text-2xl font-bold text-stone-800">
+              Recetas completadas
+            </h2>
+            <span className="text-sm font-semibold text-stone-500">
+              {completedLessons.length} recetas
+            </span>
+          </div>
+          
+            <span className="text-sm font-semibold text-stone-500 ">
+              Selecciona una de tus recetas completadas para repasar lo visto en
+              la lección
+            </span>
+        
 
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
             {lessons
               .filter((lesson) => completedLessons.includes(lesson.id))
               .map((lesson) => (
                 <div
+                  onClick={showRecipeScreen}
                   key={lesson.id}
-                  className="overflow-hidden rounded-xl border-2 border-green-200 bg-white"
+                  className="overflow-hidden rounded-xl border-2 border-green-200 bg-white hover:border-forest-dark hover:cursor-pointer"
                 >
                   {/* Placeholder de imagen - reemplaza con imagen real si tienes */}
-                  <div className="relative flex h-24 items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 text-4xl">
+                  <div className="relative flex h-24 items-center justify-center bg-linear-to-br from-amber-50 to-orange-50 text-4xl">
                     {lesson.dishEmoji}
                     <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-forest text-xs font-bold text-white">
                       ✓

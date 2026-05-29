@@ -1,13 +1,24 @@
 import React from 'react'
-
+import { Navigate, useNavigate } from 'react-router-dom'
 const CompletedRecipeScreen = ({lesson}) => {
+  const navigate = useNavigate();
+  const handleReturnHome = () =>{
+    navigate("/")
+  }
   return (
    <section className="min-h-screen bg-cream p-6 md:p-10">
       {/* TITLE */}
+      <div className='flex justify-between items-start'>
       <h2 className="mb-6 text-3xl font-bold text-stone-800">
         Recetas completadas
       </h2>
-
+      <button 
+      onClick={handleReturnHome}
+      className="rounded-xl border border-stone-300 py-3 px-4 text-stone-600 hover:bg-forest-dark hover:text-white">
+            ← Volver a Inicio
+      </button>
+      </div>
+      
       {/* CARD */}
       <div className="flex flex-col gap-10 rounded-[2.5rem] bg-white/70 p-8 shadow-card lg:flex-row lg:items-center">
         
