@@ -1,6 +1,8 @@
 import React from "react";
 import { getLesson } from "./data/lessons";
 import LessonFlow from "./components/lesson/LessonFlow";
+import { diagnosticExamService} from "./services/diagnosticExamService";
+import { userService } from "./services/userService";
 import { useProgress } from "./hooks/useProgress";
 import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
 import {AppShell} from "./components/layout/AppShell";
@@ -49,12 +51,32 @@ const App = () => {
 
 function DiagnosticExamWrapper() {
   const navigate = useNavigate();
-  const { assignLevel } = useProgress();
+  const { setLevel } = useProgress();
+
+  const handleFinish = async (level, userId) => {
+    try {
+      // Guarda el examen en el backend
+      await diagnosticExamService.submit(userId, level);
+
+      // Actualiza el nivel del usuario en el backend
+      await userService.assignLevel(userId, level);
+
+      // Guarda el nivel en localStorage (frontend)
+      setLevel(level);
+
+      navigate("/");
+    } catch (error) {
+      console.error("Error al guardar resultado:", error);
+    }
+  };
+
   return (
     <DiagnosticExam
       username="Juan85"
-      onFinish={(level) => {
-        assignLevel(level);
+      userId={1}              // ← reemplaza con usuario real cuando tengas auth
+      onFinish={handleFinish}
+      onSkip={() => {
+        setLevel(0);
         navigate("/");
       }}
     />

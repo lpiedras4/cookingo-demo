@@ -113,7 +113,7 @@ export function useProgress() {
   }, []);
 
   /*Funcion que asigna nivel*/
-  const assignLevel = (level) => {
+  const setLevel = (level) => {
     setState((prev) => ({
       ...prev,
       level,
@@ -167,11 +167,11 @@ export function useProgress() {
     xp: state.xp,
     completedLessons: state.completedLessons,
     badges: state.badges,
-    inicialLevel: state.level,
+    level: state.level,
     addXp,
     markLessonComplete,
     unlockBadge,
-    assignLevel,
     resetProgress,
+    setLevel,
   };
 }

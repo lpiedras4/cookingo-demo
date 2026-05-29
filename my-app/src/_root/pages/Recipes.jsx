@@ -1,8 +1,10 @@
 import React from "react";
 import { useState } from "react";
+import { useRecipes } from "../../hooks/useRecipes";
 import CreateRecipeCard from "../../components/ui/cards/CreateRecipeCard";
 const Recipes = () => {
   const [showForm, setShowForm] = useState(false);
+  const { recipes, createRecipe, deleteRecipe } = useRecipes();
   return (
     <div className="mx-auto max-w-4xl px-5 py-6 md:px-8">
      <header className="mb-6 flex items-center justify-between">

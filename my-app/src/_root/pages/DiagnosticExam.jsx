@@ -12,7 +12,7 @@ const assignLevel = (score) => {
   return 3;
 };
 
-const DiagnosticExam = ({ username = "Juan85", onFinish}) => {
+const DiagnosticExam = ({ username = "Juan85", userId, onFinish}) => {
   const [phase, setPhase]               = useState("welcome");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [totalScore, setTotalScore]     = useState(0);
@@ -53,7 +53,7 @@ const DiagnosticExam = ({ username = "Juan85", onFinish}) => {
         <ResultScreen
         username={username}
         level={assignLevel(totalScore)}
-        onContinue={() => onFinish(assignLevel(totalScore))}
+        onContinue={() => onFinish(assignLevel(totalScore), userId)}
         />
     </div>
   );
