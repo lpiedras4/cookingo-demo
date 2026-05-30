@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import diagnosticQuestions from "../../data/diagnosticQuestions";
 import WelcomeScreen from "../../components/diagnosticExam/WelcomeScreen";
 import QuestionCard from "../../components/diagnosticExam/QuestionCard";
@@ -12,7 +11,7 @@ const assignLevel = (score) => {
   return 3;
 };
 
-const DiagnosticExam = ({ username = "Juan85", userId, onFinish}) => {
+const DiagnosticExam = ({ username = "Usuario", userId, onFinish}) => {
   const [phase, setPhase]               = useState("welcome");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [totalScore, setTotalScore]     = useState(0);
@@ -27,6 +26,8 @@ const DiagnosticExam = ({ username = "Juan85", userId, onFinish}) => {
       setCurrentIndex((i) => i + 1);
     }
   };
+
+  const level = assignLevel(totalScore);
 
   if (phase === "welcome") return (
     <div className="max-w-lg mx-auto px-6 py-8">
@@ -53,7 +54,11 @@ const DiagnosticExam = ({ username = "Juan85", userId, onFinish}) => {
         <ResultScreen
         username={username}
         level={assignLevel(totalScore)}
-        onContinue={() => onFinish(assignLevel(totalScore), userId)}
+        onContinue={() => {
+          if(onFinish){
+            onFinish(level,userId);
+          }
+        }}
         />
     </div>
   );

@@ -1,22 +1,24 @@
 import React from "react";
-import { getLesson } from "./data/lessons";
-import LessonFlow from "./components/lesson/LessonFlow";
-import { diagnosticExamService} from "./services/diagnosticExamService";
+import { Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import { diagnosticExamService } from "./services/diagnosticExamService";
 import { userService } from "./services/userService";
 import { useProgress } from "./hooks/useProgress";
-import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
-import {AppShell} from "./components/layout/AppShell";
+
+import { AppShell } from "./components/layout/AppShell";
+
 import LessonPage from "./_root/pages/LessonPage";
 import Home from "./_root/pages/Home";
 import Profile from "./_root/pages/Profile";
 import Recipes from "./_root/pages/Recipes";
 import RecipePage from "./_root/pages/RecipePage";
 import SettingsPage from "./_root/pages/SettingsPage";
-import SignInForm from "./_root/auth/forms/SignInForm";
-import SignupForm from "./_root/auth/forms/SignupForm";
-import AuthPage from "./_root/auth/AuthPage";
 import DiagnosticExam from "./_root/pages/DiagnosticExam";
 import Wrapper from "./_root/pages/Wrapper";
+
+import AuthPage from "./_root/auth/AuthPage";
+import SignInPage from "./_root/auth/SignInPage";
+import SignUpPage from "./_root/auth/SignUpPage";
 
 const App = () => {
   return (
@@ -24,28 +26,53 @@ const App = () => {
       <Routes>
         {/* Public routes */}
         <Route element={<AuthPage />}>
-          <Route path="/sign-in" element={<SignInForm />} />
-          <Route path="/sign-up" element={<SignupForm />} />
+          <Route path="/sign-in" element={<SignInPage />} />
+          <Route path="/sign-up" element={<SignUpPage />} />
         </Route>
 
-        {/*private routes*/}
-        <Route path="/lesson/:lessonId" element={<LessonPage />} />
-        <Route path="/recipes/:lessonId" element={<RecipePage />} />
-        <Route path="/" element={<Wrapper><AppShell /></Wrapper>}>
-        <Route path="/" element={<Home/>}/>
-         <Route path="/profile" element={<Profile />} />
-        
-        <Route path="/recipes" element={<Recipes />} />
-        
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/recipes" element={<Recipes />} />
-        <Route path="/recipes/:lessonId" element={<RecipePage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/diagnostic" element={<DiagnosticExamWrapper />} />
-        {/* Ruta 404 - cualquier URL que no exista redirige a Home */}
-        <Route path="*" element={<NotFound />} />
+        {/* Private routes */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Wrapper>
+                <AppShell />
+              </Wrapper>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Home />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="recipes" element={<Recipes />} />
+          <Route path="recipes/:lessonId" element={<RecipePage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
-       
+
+        {/* Lesson route */}
+        <Route
+          path="/lesson/:lessonId"
+          element={
+            <ProtectedRoute>
+              <LessonPage />
+            </ProtectedRoute>
+          }
+        />
+        {/*Diagnostic Exam route */}
+
+        <Route
+          path="diagnostic"
+          element={
+            <ProtectedRoute>
+              <DiagnosticExamWrapper />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Redirect inicial */}
+        <Route path="/auth" element={<Navigate to="/sign-in" />} />
+
+        {/* 404 */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </main>
   );
@@ -55,8 +82,16 @@ function DiagnosticExamWrapper() {
   const navigate = useNavigate();
   const { setLevel } = useProgress();
 
+  //Se obtiene usuario real guardado después de login o registro
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
   const handleFinish = async (level, userId) => {
     try {
+      //Se valida que haya un userId real
+      if (!userId) {
+        navigate("/sign-in");
+        return;
+      }
       // Guarda el examen en el backend
       await diagnosticExamService.submit(userId, level);
 
@@ -72,10 +107,15 @@ function DiagnosticExamWrapper() {
     }
   };
 
+  //Si no hay usuario en localStorage, regresamos al login
+  if (!user) {
+    return <Navigate to="/sign-in" replace />;
+  }
+
   return (
     <DiagnosticExam
-      username="Juan85"
-      userId={1}              // ← reemplaza con usuario real cuando tengas auth
+      username={user.name}
+      userId={user.id} // ← reemplaza con usuario real cuando tengas auth
       onFinish={handleFinish}
       onSkip={() => {
         setLevel(0);

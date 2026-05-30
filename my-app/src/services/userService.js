@@ -4,39 +4,77 @@ export const userService = {
 
   getById: async (id) => {
     const res = await fetch(`${BASE_URL}/${id}`);
-    if (!res.ok) throw new Error("Error al cargar usuario");
-    return res.json();
+    const responseText = await res.text();
+
+    if (!res.ok) {
+      throw new Error(responseText || "Error al cargar usuario");
+    }
+
+    return responseText ? JSON.parse(responseText) : null;
   },
 
   create: async (user) => {
+    /*
+    console.log("Payload enviado a SpringBoot: ", user);
+    */
+    
     const res = await fetch(BASE_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(user),
     });
-    if (!res.ok) throw new Error("Error al crear usuario");
-    return res.json();
+
+    const responseText = await res.text();
+    /*
+    console.log("Status:", res.status);
+    console.log("Respuesta backend:", responseText);
+    */
+    
+    if (!res.ok){
+      throw new Error(responseText || "Error al crear usuario");
+    } 
+
+
+    return responseText ? JSON.parse(responseText) : null;
   },
 
-  login: async (username, password) => {
+  login: async (email, password) => {
     const res = await fetch(`${BASE_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
-    if (!res.ok) throw new Error("Error al iniciar sesión");
-    return res.json();
+    const responseText = await res.text();
+
+    if (!res.ok) {
+      throw new Error(responseText || "Error al iniciar sesión");
+    }
+
+    return responseText ? JSON.parse(responseText) : null;
   },
 
   assignLevel: async (id, level) => {
     const res = await fetch(`${BASE_URL}/${id}/level?level=${level}`, {
       method: "PUT",
     });
-    if (!res.ok) throw new Error("Error al asignar nivel");
+     const responseText = await res.text();
+
+    if (!res.ok) {
+      throw new Error(responseText || "Error al asignar nivel");
+    }
+
+    return responseText ? JSON.parse(responseText) : null;
   },
 
   delete: async (id) => {
-    const res = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
-    if (!res.ok) throw new Error("Error al borrar usuario");
+    const res = await fetch(`${BASE_URL}/${id}`, {
+      method: "DELETE",
+    });
+
+    const responseText = await res.text();
+
+    if (!res.ok) {
+      throw new Error(responseText || "Error al borrar usuario");
+    }
   },
 };

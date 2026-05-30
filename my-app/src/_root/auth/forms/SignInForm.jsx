@@ -1,8 +1,7 @@
 import React from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 const SignInForm = ({
   onSubmit,
-  logoText = "COOKINGO",
   title = "Aprende a cocinar con Cookingo ",
   subtitle = "Inicia sesión para continuar con tu experiencia",
 }) => {
@@ -14,7 +13,7 @@ const SignInForm = ({
     const formData = new FormData(e.target);
 
     const data = {
-      username: formData.get("username"),
+      email: formData.get("email"),
       password: formData.get("password"),
     };
 
@@ -45,16 +44,16 @@ const SignInForm = ({
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label
-            htmlFor="username"
+            htmlFor="email"
             className="block mb-2 text-sm font-medium text-green-700"
           >
-            Usuario
+            Correo electrónico
           </label>
 
           <input
-            id="username"
-            name="username"
-            type="text"
+            id="email"
+            name="email"
+            type="email"
             placeholder="Nombre del usuario"
             className="w-full rounded-md border border-green-400 px-4 py-3 text-sm text-gray-700 outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-200"
           />
