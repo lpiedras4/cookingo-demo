@@ -12,7 +12,8 @@ const SignupForm = ({
     const formData = new FormData(e.target);
 
     const data = {
-      username: formData.get("username"),
+      name: formData.get("name"),
+      age: formData.get("age"),
       email: formData.get("email"),
       password: formData.get("password"),
       confirmPassword: formData.get("confirmPassword"),
@@ -46,15 +47,15 @@ const SignupForm = ({
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label
-              htmlFor="username"
+              htmlFor="name"
               className="mb-2 block text-sm font-medium text-green-700"
             >
               Nombre de usuario
             </label>
 
             <input
-              id="username"
-              name="username"
+              id="name"
+              name="name"
               type="text"
               placeholder="Nombre del usuario"
               className="w-full rounded-md border border-green-600 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-500 focus:border-green-800 focus:ring-2 focus:ring-green-100"
