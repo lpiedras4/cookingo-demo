@@ -7,6 +7,8 @@ import  ResultsScreen  from "./ResultsScreen";
 import  PrepOrderScreen  from "./PrepOrderScreen";
 import  CookingScreen  from "./CookingScreen"; 
 import { XMarkIcon } from "@heroicons/react/24/solid";
+import { useUsers } from "../../hooks/useUsers";
+import { userService } from "../../services/userService";
 /*
 Orquesta el flujo de 5 pantallas de una lección
 Este componente sabe en qué paso estamos
@@ -32,6 +34,18 @@ const LessonFlow = ({ lesson, onEarnXp, onCompleteLesson }) => {
   const [totalXpEarned, setTotalXpEarned]= useState(0);
   const [showAbandonModal, setShowAbandonModal] = useState(false);
   const navigate = useNavigate();
+  const { user } = useUsers();
+
+  const handleEarnXp = async (points) => {
+    onEarnXp(points);  // actualiza localStorage como antes
+    if (user?.id) {
+      try {
+        await userService.addXp(user.id, points);
+      } catch (e) {
+        console.warn("No se pudo sincronizar XP:", e.message);
+      }
+    }
+  };
 
   const next = () => {
     const nextStep = Math.min(TOTAL_SCREENS, step + 1);
@@ -39,7 +53,7 @@ const LessonFlow = ({ lesson, onEarnXp, onCompleteLesson }) => {
     //otorga el XP correspondiente a la pantalla que se acaba de avanzar.
     const xpEarned = XP_PER_SCREEN[nextStep] || 0;
     if (xpEarned > 0){
-      onEarnXp(xpEarned);
+      handleEarnXp(xpEarned);
       setTotalXpEarned((prev) => prev + xpEarned);
     }
   };
@@ -56,7 +70,7 @@ const LessonFlow = ({ lesson, onEarnXp, onCompleteLesson }) => {
 
    const handleCookingComplete = (cookingXp) => {
     // El XP viene de los quizzes, no de XP_PER_SCREEN
-    onEarnXp(cookingXp);
+    handleEarnXp(cookingXp);
     onCompleteLesson?.();
     setTotalXpEarned((prev) => prev + cookingXp);
     
@@ -101,14 +115,14 @@ const LessonFlow = ({ lesson, onEarnXp, onCompleteLesson }) => {
         <IngredientsScreen
         ingredients={lesson.ingredients}
         onNext={next}
-        onEarnXp = {onEarnXp}
+        onEarnXp = {handleEarnXp}
         />
       )}
       {step === 3 && (
         <PrepOrderScreen
         prepOrder={lesson.prepOrder}
         onNext={next}
-        onEarnXp={onEarnXp}
+        onEarnXp={handleEarnXp}
         />
       )}
       {step === 4 && (
