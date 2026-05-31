@@ -2,14 +2,14 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #f5e3c8; /* fondo principal */
+  --color-cream: #f5e3c8; /* fondo lecciones */
   --color-forest: #1b5c3e; /* sidebar, botones primarios */
   --color-forest-dark: #144a31; /* hover del sidebar */
   --color-amber: #f5a623; /* hero cards, progreso activo */
   --color-amber-dark: #e09410; /* hover amber */
   --color-orange: #e8843a; /* tiles de ingredientes */
   --color-orange-dark: #d4601a; /* hover de tiles */
-  --color-green-mint: #F0F8F0; /*Fondo de pantallas de inicio de sesión */
+  --color-green-mint: #F0F8F0; /*Fondo de pantallas de inicio de sesión ++ fondo principal*/
   /*Tipografía */
   --font-display: "Fraunces", ui-serif, Georgia, serif;
   --font-body: "Nunito",ui-sans-serif, system-ui, sans-serif;
