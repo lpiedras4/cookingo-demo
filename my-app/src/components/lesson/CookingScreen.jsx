@@ -16,6 +16,7 @@ const CookingScreen = ({ cookingSteps, onComplete, onPrev }) => {
   const currentStep = cookingSteps[currentStepIndex];
   const isLastStep = currentStepIndex === cookingSteps.length - 1;
   const hasQuiz = currentStep.question !== undefined;
+  const hasTip = currentStep.tip !== undefined; //Tip para antes de preguntas 
 
   // Solo si hay quiz: validación de respuesta
   const selectionIsCorrect = hasQuiz && selectedAnswer === currentStep.correctIndex;
@@ -74,6 +75,14 @@ const CookingScreen = ({ cookingSteps, onComplete, onPrev }) => {
         <p className="text-sm font-semibold text-stone-600">Instrucción:</p>
         <p className="mt-2 text-base text-stone-800">{currentStep.instruction}</p>
       </div>
+
+      {/* Tarjeta de tip si el paso tiene tip */}
+      {hasTip && (
+        <div className="rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
+          <p className="text-sm font-semibold text-blue-800">📚 Antes de responder, lee esto:</p>
+          <p className="mt-2 text-sm text-blue-900 leading-relaxed">{currentStep.tip}</p>
+        </div>
+      )}
 
       {/* Quiz (si existe) */}
       {hasQuiz && (

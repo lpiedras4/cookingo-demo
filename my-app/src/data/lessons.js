@@ -141,6 +141,7 @@ export const lessons = [
     cookingSteps: [
       {
         instruction: "Añade los copos de avena al frasco",
+        tip: "La avena contiene almidones que se ablandan al absorber líquido. En frío ese proceso es lento y controlado — en caliente es rápido y hace papilla.",
         question: "¿Por qué se hidrata la avena en frío y no en caliente?",
         options: [
           "Porque calentarla destruye las vitaminas",
@@ -197,7 +198,6 @@ export const lessons = [
         xp: 15,
       },
     ],
-
     badge: "Madrugador saludable",
     totalXp: 75, // 20 + 20 + 0 + 20 + 0 + 15
   },
