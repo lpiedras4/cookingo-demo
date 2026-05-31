@@ -1,4 +1,5 @@
 import { useRecipes } from "../../hooks/useRecipes";
+import { useUsers } from "../../hooks/useUsers";
 import CreateRecipeCard from "../../components/ui/cards/CreateRecipeCard";
 import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
@@ -121,6 +122,8 @@ const recipesMock = [
 const Recipes = () => {
   const [showForm, setShowForm] = useState(false);
   const { recipes, createRecipe, deleteRecipe } = useRecipes();
+  const { user } = useUsers();
+  const isAdmin = user?.role === "admin";
 
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [selectedType, setSelectedType] = useState("Todos");
@@ -155,13 +158,14 @@ const Recipes = () => {
               Abre una receta para ver sus ingredientes y preparación completa.
             </p>
           </div>
-
-          <button
-            onClick={() => setShowForm(true)}
-            className="w-fit rounded-full border-b-4 border-forest-dark bg-forest px-5 py-2.5 font-body text-sm font-extrabold text-white transition-colors hover:bg-forest-dark"
-          >
-            + Crear receta
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="w-fit rounded-full border-b-4 border-forest-dark bg-forest px-5 py-2.5 font-body text-sm font-extrabold text-white transition-colors hover:bg-forest-dark"
+            >
+              + Crear receta
+            </button>
+          )}
         </div>
       </section>
 

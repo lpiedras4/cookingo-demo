@@ -26,6 +26,9 @@ export function useUsers() {
       setUser(loggedUser);
       localStorage.setItem("user", JSON.stringify(loggedUser));
 
+      if(loggedUser.xp !== undefined) {
+        localStorage.setItem("cookingo-progress", JSON.stringify({...JSON.parse(localStorage.getItem("cookingo-progress") || "{}"), xp: loggedUser.xp,}));
+      }
       if(loggedUser.role == "ADMIN"){
         navigate("/admin");
       }else{

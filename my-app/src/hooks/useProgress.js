@@ -120,12 +120,22 @@ export function useProgress() {
     }));
   }
 
-  //Funciones para modificar el estado
-  const addXp = (points) => {
+  //Funcion que añade XP
+  const addXp = async (points, userId) => {
+    // Actualiza localStorage inmediatamente
     setState((prev) => ({
       ...prev,
       xp: prev.xp + points,
     }));
+
+    // Sincroniza con el backend si hay usuario
+    if (userId) {
+      try {
+        await userService.addXp(userId, points);
+      } catch (e) {
+        console.warn("No se pudo sincronizar XP con el backend:", e.message);
+      }
+    }
   };
 
   const markLessonComplete = (lessonId) => {

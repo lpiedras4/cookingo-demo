@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Navigate, useNavigate } from "react-router-dom";
 import { lessons } from "../../data/lessons";
 import { useProgress } from "../../hooks/useProgress";
+import { useUsers } from "../../hooks/useUsers";
 import { useState } from "react";
 import CreateRecipeCard from "../../components/ui/cards/CreateRecipeCard";
 const Home = () => {
@@ -12,7 +13,10 @@ const Home = () => {
   }
   const [showForm, setShowForm] = useState(false);
   const { xp, completedLessons, level: diagnosticLevel } = useProgress();
-  const level = diagnosticLevel !== null && diagnosticLevel  !== undefined ? diagnosticLevel + 1 : Math.floor((xp || 0) / 100) + 1;
+  const { user } = useUsers();
+  const baseLevel = diagnosticLevel ?? 0;
+  const xpLevel = user?.xp ?? 0;
+  const level =  baseLevel + xpLevel;
   const xpActual = ((xp || 0) % 100);
   const porcentaje = (xpActual / 100) * 100;
   return (
