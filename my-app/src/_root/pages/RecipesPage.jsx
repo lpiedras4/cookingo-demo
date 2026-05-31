@@ -1,28 +1,28 @@
 import { useRecipes } from "../../hooks/useRecipes";
 import CreateRecipeCard from "../../components/ui/cards/CreateRecipeCard";
 import React, { useState } from "react";
-import { XMarkIcon } from "@heroicons/react/24/solid";
+
 import RecipeCard from "../../components/ui/cards/RecipeCard";
 import DifficultyBadge from "../../components/ui/DifficultyBadge";
 import RecipeModal from "../../components/ui/RecipeModal";
-
+import { useUsers } from "../../hooks/useUsers";
 const RecipesPage = () => {
   const [showForm, setShowForm] = useState(false);
+  const { user } = useUsers();
+  const isAdmin = user?.role === "ADMIN";
   const { recipes, createRecipe, deleteRecipe } = useRecipes();
-console.log("Recetas API: ", recipes);
+  console.log("Recetas API: ", recipes);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [selectedType, setSelectedType] = useState("Todos");
   const [selectedDifficulty, setSelectedDifficulty] = useState("Todos");
 
   const filteredRecipes = recipes.filter((recipe) => {
-
-    
     const matchesType =
       selectedType === "Todos" || recipe.type === selectedType;
 
     const matchesDifficulty =
       selectedDifficulty === "Todos" ||
-      recipe.difficulty === Number(selectedDifficulty);
+      recipe.levelId === Number(selectedDifficulty);
 
     return matchesType && matchesDifficulty;
   });
@@ -45,13 +45,14 @@ console.log("Recetas API: ", recipes);
               Abre una receta para ver sus ingredientes y preparación completa.
             </p>
           </div>
-
-          <button
-            onClick={() => setShowForm(true)}
-            className="w-fit rounded-full border-b-4 border-forest-dark bg-forest px-5 py-2.5 font-body text-sm font-extrabold text-white transition-colors hover:bg-forest-dark"
-          >
-            + Crear receta
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="w-fit rounded-full border-b-4 border-forest-dark bg-forest px-5 py-2.5 font-body text-sm font-extrabold text-white transition-colors hover:bg-forest-dark"
+            >
+              + Crear receta
+            </button>
+          )}
         </div>
       </section>
 
@@ -120,11 +121,14 @@ console.log("Recetas API: ", recipes);
       )}
 
       {showForm && (
-        <CreateRecipeCard
-          onClose={() => setShowForm(false)}
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-4 py-8">
+          <CreateRecipeCard 
+          onClose={() => setShowForm(false)} 
           onCreate={createRecipe}
-        />
+          />
+        </div>
       )}
+      
 
       <RecipeModal
         recipe={selectedRecipe}

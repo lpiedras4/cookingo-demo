@@ -1,5 +1,5 @@
 import React from "react";
-
+import { XMarkIcon } from "@heroicons/react/24/solid";
 const RecipeModal = ({ recipe, onClose }) => {
   if (!recipe) return null;
   return (
@@ -17,7 +17,7 @@ const RecipeModal = ({ recipe, onClose }) => {
           <section>
             <div className="mb-6">
               <span className="mb-3 inline-flex rounded-full bg-forest px-4 py-1 text-sm font-black text-white">
-                {recipe.type} · Nivel {recipe.difficulty}
+                {recipe.type} · Nivel {recipe.levelId}
               </span>
 
               <h2 className="text-4xl font-black text-stone-950 md:text-6xl">
