@@ -10,8 +10,8 @@ import { AppShell } from "./components/layout/AppShell";
 import LessonPage from "./_root/pages/LessonPage";
 import Home from "./_root/pages/Home";
 import Profile from "./_root/pages/Profile";
-import Recipes from "./_root/pages/Recipes";
-import RecipePage from "./_root/pages/RecipePage";
+import Recipes from "./_root/pages/RecipesPage";
+import RecipePage from "./_root/pages/CompletedRecipePage";
 import SettingsPage from "./_root/pages/SettingsPage";
 import DiagnosticExam from "./_root/pages/DiagnosticExam";
 import Wrapper from "./_root/pages/Wrapper";
@@ -44,7 +44,6 @@ const App = () => {
           <Route index element={<Home />} />
           <Route path="profile" element={<Profile />} />
           <Route path="recipes" element={<Recipes />} />
-          <Route path="recipes/:lessonId" element={<RecipePage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
 
@@ -57,6 +56,8 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        {/*Recipe View Route  */}
+        <Route path="recipes/:lessonId" element={<RecipePage />} />
         {/*Diagnostic Exam route */}
 
         <Route
@@ -93,10 +94,10 @@ function DiagnosticExamWrapper() {
         return;
       }
       // Guarda el examen en el backend
-      await diagnosticExamService.submit(userId, level);
+      await diagnosticExamService.submit(userId, level+1);
 
       // Actualiza el nivel del usuario en el backend
-      await userService.assignLevel(userId, level);
+      await userService.assignLevel(userId, level+1);
 
       // Guarda el nivel en localStorage (frontend)
       setLevel(level);
