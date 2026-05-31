@@ -94,10 +94,10 @@ function DiagnosticExamWrapper() {
         return;
       }
       // Guarda el examen en el backend
-      await diagnosticExamService.submit(userId, level);
+      await diagnosticExamService.submit(userId, level+1);
 
       // Actualiza el nivel del usuario en el backend
-      await userService.assignLevel(userId, level);
+      await userService.assignLevel(userId, level+1);
 
       // Guarda el nivel en localStorage (frontend)
       setLevel(level);
