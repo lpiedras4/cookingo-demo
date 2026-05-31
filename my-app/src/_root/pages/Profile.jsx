@@ -2,13 +2,14 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { lessons } from "../../data/lessons";
 import { useProgress } from "../../hooks/useProgress";
+import { useUsers } from "../../hooks/useUsers";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { xp, completedLessons, badges, resetProgress } = useProgress();
-
-  const level = Math.floor(xp / 100) + 1;
-  const xpActual = xp % 100;
+  const { xp, completedLessons, level: diagnosticLevel } = useProgress();
+  const { user } = useUsers();
+  const level = diagnosticLevel !== null && diagnosticLevel  !== undefined ? diagnosticLevel + 1 : Math.floor((xp || 0) / 100) + 1;
+  const xpActual = ((xp || 0) % 100);
   const porcentaje = (xpActual / 100) * 100;
 
   const logros = [
@@ -59,13 +60,13 @@ const Profile = () => {
         <div className="flex items-center gap-5">
           {/* Avatar */}
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-4 border-forest-dark bg-forest font-display text-2xl font-bold text-white">
-            PLC
+            {user.name.charAt(0).toUpperCase() || "?"}
           </div>
 
           {/* Info del usuario */}
           <div className="flex-1">
             <h2 className="font-display text-2xl font-bold text-stone-800">
-              Pepe La Cabra
+              {user.name || "Nombre del usuario"}
             </h2>
             <p className="text-sm font-bold text-stone-500">
               Cocinero · Nivel {level}
