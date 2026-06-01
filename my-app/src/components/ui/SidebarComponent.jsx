@@ -1,5 +1,6 @@
-import { NavLink } from "react-router-dom";
+import { Navigate, NavLink } from "react-router-dom";
 import logoCookingo from "./../../../public/logo/logoCookingo.svg"
+import { useNavigate } from "react-router-dom";
 import {
   HomeIcon,
   UserCircleIcon,
@@ -9,9 +10,13 @@ import {
 
 const SidebarComponent = () => {
   return (
-    <aside className="fixed left-0 top-0 hidden h-screen w-80 flex-col items-start bg-forest py-6 md:flex">
+    <aside className="fixed left-0 top-0 hidden h-screen s:w-80 flex-col items-start bg-forest py-6 md:flex">
       <div className="flex flex-row-reverse justify-between gap-5 items-center">
-        <h1 className="font-display text-3xl font-bold text-white">
+        <h1 
+        onClick={()=>{
+        useNavigate("/")
+      }}
+        className="font-display text-3xl font-bold text-white cursor-pointer">
           Cookin<span className="text-orange">Go</span>
         </h1>
       <img src={logoCookingo} alt="Cookingo logo" className="h-30 w-auto" />

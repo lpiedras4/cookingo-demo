@@ -4,9 +4,22 @@ export const recipeService = {
   // Trae todas las recetas
   getAll: async () => {
     const res = await fetch(BASE_URL);
-    if (!res.ok) throw new Error("Error al cargar recetas");
+    if(!res.ok){
+      throw new Error("Error al obtener recetas");
+    }
     return res.json();
   },
+
+  //buscar receta por id
+
+  getById: async(id) =>{
+    const res = await fetch(`${BASE_URL}/${id}`);
+    if(!res.ok){
+      throw new Error("Error al obtener receta");
+    }
+    return res.json();
+  },
+
 
   // Crea una receta nueva
   create: async (recipe) => {

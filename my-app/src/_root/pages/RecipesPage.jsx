@@ -2,143 +2,44 @@ import { useRecipes } from "../../hooks/useRecipes";
 import { useUsers } from "../../hooks/useUsers";
 import CreateRecipeCard from "../../components/ui/cards/CreateRecipeCard";
 import React, { useState } from "react";
-import { XMarkIcon } from "@heroicons/react/24/solid";
 import RecipeCard from "../../components/ui/cards/RecipeCard";
-import DifficultyBadge from "../../components/ui/DifficultyBadge";
 import RecipeModal from "../../components/ui/RecipeModal";
-const recipesMock = [
-  {
-    id: 1,
-    name: "Avena de noche",
-    difficulty: 1,
-    type: "Desayuno",
-    imageUrl:
-      "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?q=80&w=1200&auto=format&fit=crop",
-    ingredients: [
-      "1/2 taza (45 g) de copos de avena",
-      "1/2 taza (120 ml) de leche vegetal",
-      "2 cdas. (30 g) de crema de cacahuate",
-      "1 cda. (10 g) de semillas de lino",
-      "1/2 cdita de canela en polvo",
-      "1 cdita de miel",
-    ],
-    ingredientPreparation: [
-      "Elegir un frasco de cristal con tapa hermética",
-      "Medir 1/2 taza de copos de avena finos",
-      "Medir 1/2 taza de leche vegetal fría",
-      "Preparar los toppings como plátano o arándanos",
-      "Reservar espacio en la nevera mínimo 4 horas",
-    ],
-    cookingPreparation: [
-      "Añade los copos de avena al frasco",
-      "Vierte la leche vegetal sobre la avena",
-      "Añade la crema de cacahuate y las semillas de lino",
-      "Agrega la miel y la canela",
-      "Mezcla bien todos los ingredientes",
-      "Cierra el frasco y refrigera mínimo 4 horas",
-    ],
-  },
-  {
-    id: 2,
-    name: "Bowl de pollo",
-    difficulty: 2,
-    type: "Comida",
-    imageUrl:
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop",
-    ingredients: [
-      "1 taza de arroz integral",
-      "150 g de pechuga de pollo",
-      "1/2 aguacate",
-      "1 taza de verduras mixtas",
-      "1 cda. de aceite de oliva",
-    ],
-    ingredientPreparation: [
-      "Lavar las verduras",
-      "Cortar el aguacate en rebanadas",
-      "Cocer el arroz integral",
-      "Sazonar la pechuga de pollo",
-    ],
-    cookingPreparation: [
-      "Cocina el pollo en un sartén caliente",
-      "Coloca el arroz como base del bowl",
-      "Agrega las verduras y el aguacate",
-      "Añade el pollo en tiras",
-      "Sirve con aceite de oliva",
-    ],
-  },
-  {
-    id: 3,
-    name: "Tacos de lechuga",
-    difficulty: 1,
-    type: "Cena",
-    imageUrl:
-      "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?q=80&w=1200&auto=format&fit=crop",
-    ingredients: [
-      "4 hojas grandes de lechuga",
-      "120 g de carne molida magra",
-      "1/2 tomate picado",
-      "1/4 taza de cebolla",
-      "1/4 taza de queso bajo en grasa",
-    ],
-    ingredientPreparation: [
-      "Lavar las hojas de lechuga",
-      "Picar el tomate y la cebolla",
-      "Preparar la carne molida",
-    ],
-    cookingPreparation: [
-      "Cocina la carne molida hasta dorar",
-      "Coloca la carne sobre las hojas de lechuga",
-      "Agrega tomate, cebolla y queso",
-      "Enrolla las hojas como tacos",
-    ],
-  },
-  {
-    id: 4,
-    name: "Smoothie verde",
-    difficulty: 1,
-    type: "Desayuno",
-    imageUrl:
-      "https://images.unsplash.com/photo-1610970881699-44a5587cabec?q=80&w=1200&auto=format&fit=crop",
-    ingredients: [
-      "1 plátano",
-      "1 taza de espinaca",
-      "1/2 taza de yogur griego",
-      "1/2 taza de leche vegetal",
-      "1 cdita de miel",
-    ],
-    ingredientPreparation: [
-      "Lavar la espinaca",
-      "Pelar el plátano",
-      "Medir la leche vegetal",
-    ],
-    cookingPreparation: [
-      "Agrega todos los ingredientes a la licuadora",
-      "Licúa hasta obtener una mezcla suave",
-      "Sirve frío en un vaso",
-    ],
-  },
-];
-
-const Recipes = () => {
+const RecipesPage = () => {
   const [showForm, setShowForm] = useState(false);
-  const { recipes, createRecipe, deleteRecipe } = useRecipes();
-  const { user } = useUsers();
-  const isAdmin = user?.role === "admin";
+  const { recipes, loading, error, createRecipe, deleteRecipe, updateRecipe } =
+    useRecipes();
+  const  {user}  = useUsers();
+  const isAdmin = user?.role === "ADMIN";
 
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [editingRecipe, setEditingRecipe] = useState(null);
   const [selectedType, setSelectedType] = useState("Todos");
   const [selectedDifficulty, setSelectedDifficulty] = useState("Todos");
 
-  const filteredRecipes = recipesMock.filter((recipe) => {
+  const filteredRecipes = recipes.filter((recipe) => {
     const matchesType =
       selectedType === "Todos" || recipe.type === selectedType;
 
     const matchesDifficulty =
       selectedDifficulty === "Todos" ||
-      recipe.difficulty === Number(selectedDifficulty);
+      recipe.levelId === Number(selectedDifficulty);
 
     return matchesType && matchesDifficulty;
   });
+
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "¿Seguro que quieres eliminar esta receta?",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteRecipe(id);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-green-mint px-5 py-8 md:px-8 lg:ml-[260px] lg:px-10 xl:px-14">
@@ -213,11 +114,29 @@ const Recipes = () => {
 
       <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {filteredRecipes.map((recipe) => (
-          <RecipeCard
-            key={recipe.id}
-            recipe={recipe}
-            onClick={setSelectedRecipe}
-          />
+          <div key={recipe.id} className="space-y-3">
+            <RecipeCard recipe={recipe} onClick={setSelectedRecipe} />
+
+            {isAdmin && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingRecipe(recipe)}
+                  className="flex-1 rounded-full bg-amber px-4 py-2 text-sm font-extrabold text-white hover:bg-amber-dark"
+                >
+                  Editar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDelete(recipe.id)}
+                  className="flex-1 rounded-full bg-red-500 px-4 py-2 text-sm font-extrabold text-white hover:bg-red-600"
+                >
+                  Eliminar
+                </button>
+              </div>
+            )}
+          </div>
         ))}
       </section>
 
@@ -234,10 +153,22 @@ const Recipes = () => {
       )}
 
       {showForm && (
-        <CreateRecipeCard
-          onClose={() => setShowForm(false)}
-          onCreate={createRecipe}
-        />
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-4 py-8">
+          <CreateRecipeCard
+            onClose={() => setShowForm(false)}
+            onCreate={createRecipe}
+          />
+        </div>
+      )}
+
+      {editingRecipe && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-4 py-8">
+          <CreateRecipeCard
+            recipeToEdit={editingRecipe}
+            onClose={() => setEditingRecipe(null)}
+            onUpdate={updateRecipe}
+          />
+        </div>
       )}
 
       <RecipeModal
@@ -248,4 +179,4 @@ const Recipes = () => {
   );
 };
 
-export default Recipes;
+export default RecipesPage;

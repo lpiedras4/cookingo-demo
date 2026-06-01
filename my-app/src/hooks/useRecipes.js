@@ -4,9 +4,10 @@ import { recipeService } from "../services/recipeService";
 export function useRecipes() {
   const [recipes, setRecipes]   = useState([]);
   const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState(null);
+  const [error, setError]       = useState("");
 
   // Carga las recetas al montar
+  
   useEffect(() => {
     recipeService.getAll()
       .then(setRecipes)
@@ -19,10 +20,19 @@ export function useRecipes() {
     setRecipes((prev) => [...prev, newRecipe]);
   };
 
+const updateRecipe = async (id, recipe) => {
+  const updatedRecipe = await recipeService.update(id, recipe);
+  setRecipes((prev) => 
+    prev.map( (item) => (item.id === id ? updatedRecipe : item))
+  );
+  return updatedRecipe;
+}
+
+
   const deleteRecipe = async (id) => {
     await recipeService.delete(id);
     setRecipes((prev) => prev.filter((r) => r.id !== id));
   };
 
-  return { recipes, loading, error, createRecipe, deleteRecipe };
+  return { recipes, loading, error, createRecipe, deleteRecipe, updateRecipe };
 }

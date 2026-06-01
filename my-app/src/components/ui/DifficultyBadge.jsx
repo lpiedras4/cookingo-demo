@@ -1,5 +1,5 @@
 import React from 'react'
-const DifficultyBadge = ({difficulty}) => {
+const DifficultyBadge = ({difficulty} = 0 ) => {
   return (
     <div className="flex items-center gap-1">
       {[1, 2, 3].map((level) => (
@@ -12,7 +12,7 @@ const DifficultyBadge = ({difficulty}) => {
       ))}
 
       <span className="ml-2 text-sm font-extrabold text-stone-700">
-        Nivel {difficulty}
+        Nivel {difficulty  || "N/A"}
       </span>
     </div>
   );
