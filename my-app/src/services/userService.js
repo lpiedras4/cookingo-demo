@@ -67,6 +67,9 @@ export const userService = {
   },
 
   addXp: async (id, xp) => {
+    if(xp == null || xp < 0){
+      xp = 0; // Evita enviar valores negativos o nulos al backend
+    }
     const res = await fetch(`${BASE_URL}/${id}/xp?xp=${xp}`, {
       method: "PUT",
     });
