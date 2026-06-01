@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { lessons } from "../../data/lessons";
@@ -6,14 +7,20 @@ import { useUsers } from "../../hooks/useUsers";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { xp, completedLessons, level: diagnosticLevel } = useProgress();
-  const { user } = useUsers();
+  const { xp, completedLessons, level: diagnosticLevel, resetProgress } = useProgress();
+  const { user, logout, refreshUser } = useUsers();
   const baseLevel = diagnosticLevel ?? 0;
-  const xpLevel = Math.floor((xp || 0) / 100);
+  const backendxp = user?.xp ?? 0;
+  const localxp = xp || 0;
+  const totalxp = Math.max(backendxp, localxp); // Asegura que mostramos el mayor valor entre backend y local
+  const xpLevel = Math.floor(totalxp / 100); // Cada 100 XP es un nivel
   const level = baseLevel + xpLevel;
-  const xpActual = ((xp || 0) % 100);
+  const xpActual = totalxp % 100;
   const porcentaje = (xpActual / 100) * 100;
 
+  useEffect(() => {
+    refreshUser();
+  }, []);
   const logros = [
     {
       id: 1,
@@ -45,7 +52,7 @@ const Profile = () => {
     if (confirmed) {
       resetProgress();
       logout();
-      navigate("/login");
+      navigate("/sign-in");
     }
   };
 
@@ -64,7 +71,7 @@ const Profile = () => {
         <div className="flex items-center gap-5">
           {/* Avatar */}
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-4 border-forest-dark bg-forest font-display text-2xl font-bold text-white">
-            {user.name.charAt(0).toUpperCase() || "?"}
+            {user.name.charAt(0).toUpperCase() ?? "U"}
           </div>
 
           {/* Info del usuario */}
@@ -89,7 +96,7 @@ const Profile = () => {
 
               <div className="rounded-xl border-2 border-stone-200 bg-stone-50 px-3 py-2 text-center">
                 <p className="font-display text-lg font-bold text-forest">
-                  {xp}
+                  {totalxp}
                 </p>
                 <p className="text-xs font-bold uppercase tracking-wide text-stone-400">
                   XP
@@ -206,7 +213,7 @@ const Profile = () => {
 
       {/* Cerrar sesión */}
       <button
-        onClick={logout}
+        onClick={handleReset}
         className="w-full rounded-2xl border-2 border-stone-300 bg-white py-3 font-bold text-stone-700 hover:bg-stone-100 transition-colors"
       >
         Cerrar sesión
