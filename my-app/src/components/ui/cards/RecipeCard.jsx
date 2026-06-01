@@ -1,7 +1,7 @@
 import React from 'react'
 import DifficultyBadge from '../DifficultyBadge';
 const RecipeCard = ({recipe, onClick}) => {
-  const difficultyLabels = {
+  const levelLabels = {
   1: "Fácil",
   2: "Intermedio",
   3: "Avanzado",
@@ -19,7 +19,7 @@ const RecipeCard = ({recipe, onClick}) => {
         />
 
         <div className="absolute left-3 top-3 rounded-full bg-green-mint px-3 py-1 text-xs font-black text-forest">
-          {recipe.type}
+          {recipe.type || "Sin categoría"} 
         </div>
       </div>
 
@@ -27,10 +27,10 @@ const RecipeCard = ({recipe, onClick}) => {
         <h3 className="text-xl font-black text-stone-900">{recipe.name}</h3>
 
         <p className="text-sm font-semibold text-stone-500">
-          {difficultyLabels[recipe.difficulty]}
+          {levelLabels[recipe.levelId] || "Sin dificultad"}
         </p>
 
-        <DifficultyBadge difficulty={recipe.difficulty} />
+        <DifficultyBadge difficulty={recipe.levelId || 0} />
       </div>
     </button>
   );

@@ -4,9 +4,10 @@ import { recipeService } from "../services/recipeService";
 export function useRecipes() {
   const [recipes, setRecipes]   = useState([]);
   const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState(null);
+  const [error, setError]       = useState("");
 
   // Carga las recetas al montar
+  
   useEffect(() => {
     recipeService.getAll()
       .then(setRecipes)
