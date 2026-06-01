@@ -1,6 +1,7 @@
 import { Navigate, NavLink } from "react-router-dom";
 import logoCookingo from "./../../../public/logo/logoCookingo.svg"
 import { useNavigate } from "react-router-dom";
+import { useUsers } from "../../hooks/useUsers";
 import {
   HomeIcon,
   UserCircleIcon,
@@ -9,6 +10,9 @@ import {
 } from "@heroicons/react/24/solid";
 
 const SidebarComponent = () => {
+  const  {user}  = useUsers();
+  const isAdmin = user?.role === "ADMIN";
+  const navigate = useNavigate();
   return (
     <aside className="fixed left-0 top-0 hidden h-screen s:w-80 flex-col items-start bg-forest py-6 md:flex">
       <div className="flex flex-row-reverse justify-between gap-5 items-center">
@@ -25,7 +29,7 @@ const SidebarComponent = () => {
       <nav className="flex flex-col gap-6">
         <NavItem to="/" icon={HomeIcon} label="Inicio" />
         <NavItem to="/profile" icon={UserCircleIcon} label="Perfil" />
-        <NavItem to="/recipes" icon={BookOpenIcon} label="Recetas" />
+        {isAdmin && (<NavItem to="/recipes" icon={BookOpenIcon} label="Recetas" />)}
         <NavItem to="/settings" icon={Cog6ToothIcon} label="Configuración" />
         
       </nav>
