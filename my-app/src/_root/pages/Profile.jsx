@@ -40,10 +40,12 @@ const Profile = () => {
 
   const handleReset = () => {
     const confirmed = window.confirm(
-      "¿Estás seguro? Esto borrará todo tu progreso (XP, lecciones, badges). Esta acción no se puede deshacer.",
+      "Estás seguro de cerrar tu cuenta, guardara tu progreso y podras volver a iniciar sesión cuando quieras.",
     );
     if (confirmed) {
       resetProgress();
+      logout();
+      navigate("/login");
     }
   };
 
@@ -202,19 +204,13 @@ const Profile = () => {
         </div>
       </section>
 
-      {/* Zona de peligro */}
-      <div className="rounded-3xl border-2 border-red-400 bg-red-50 p-5">
-        <p className="mb-2 text-base font-bold text-red-800">Zona de peligro</p>
-        <p className="mb-4 text-sm text-red-700">
-          Restablecer tu progreso borrará todo tu XP, lecciones y badges.
-        </p>
-        <button
-          onClick={handleReset}
-          className="w-full rounded-xl border-2 border-red-400 bg-white px-4 py-2.5 text-sm font-bold text-red-700 hover:bg-red-100 transition-colors"
-        >
-          Restablecer progreso
-        </button>
-      </div>
+      {/* Cerrar sesión */}
+      <button
+        onClick={logout}
+        className="w-full rounded-2xl border-2 border-stone-300 bg-white py-3 font-bold text-stone-700 hover:bg-stone-100 transition-colors"
+      >
+        Cerrar sesión
+      </button>
     </div>
   );
 };
