@@ -2,20 +2,17 @@ import { useRecipes } from "../../hooks/useRecipes";
 import { useUsers } from "../../hooks/useUsers";
 import CreateRecipeCard from "../../components/ui/cards/CreateRecipeCard";
 import React, { useState } from "react";
-
 import RecipeCard from "../../components/ui/cards/RecipeCard";
-import DifficultyBadge from "../../components/ui/DifficultyBadge";
 import RecipeModal from "../../components/ui/RecipeModal";
-import { useUsers } from "../../hooks/useUsers";
 const RecipesPage = () => {
   const [showForm, setShowForm] = useState(false);
-  const { user } = useUsers();
-  const isAdmin = user?.role === "ADMIN";
-  const { recipes, createRecipe, deleteRecipe } = useRecipes();
+  const { recipes, loading, error, createRecipe, deleteRecipe, updateRecipe } =
+    useRecipes();
   const { user } = useUsers();
   const isAdmin = user?.role === "admin";
 
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [editingRecipe, setEditingRecipe] = useState(null);
   const [selectedType, setSelectedType] = useState("Todos");
   const [selectedDifficulty, setSelectedDifficulty] = useState("Todos");
 
@@ -29,6 +26,20 @@ const RecipesPage = () => {
 
     return matchesType && matchesDifficulty;
   });
+
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "¿Seguro que quieres eliminar esta receta?",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteRecipe(id);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-green-mint px-5 py-8 md:px-8 lg:ml-[260px] lg:px-10 xl:px-14">
@@ -103,11 +114,29 @@ const RecipesPage = () => {
 
       <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {filteredRecipes.map((recipe) => (
-          <RecipeCard
-            key={recipe.id}
-            recipe={recipe}
-            onClick={setSelectedRecipe}
-          />
+          <div key={recipe.id} className="space-y-3">
+            <RecipeCard recipe={recipe} onClick={setSelectedRecipe} />
+
+            {isAdmin && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingRecipe(recipe)}
+                  className="flex-1 rounded-full bg-amber px-4 py-2 text-sm font-extrabold text-white hover:bg-amber-dark"
+                >
+                  Editar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDelete(recipe.id)}
+                  className="flex-1 rounded-full bg-red-500 px-4 py-2 text-sm font-extrabold text-white hover:bg-red-600"
+                >
+                  Eliminar
+                </button>
+              </div>
+            )}
+          </div>
         ))}
       </section>
 
@@ -125,13 +154,22 @@ const RecipesPage = () => {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-4 py-8">
-          <CreateRecipeCard 
-          onClose={() => setShowForm(false)} 
-          onCreate={createRecipe}
+          <CreateRecipeCard
+            onClose={() => setShowForm(false)}
+            onCreate={createRecipe}
           />
         </div>
       )}
-      
+
+      {editingRecipe && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-4 py-8">
+          <CreateRecipeCard
+            recipeToEdit={editingRecipe}
+            onClose={() => setEditingRecipe(null)}
+            onUpdate={updateRecipe}
+          />
+        </div>
+      )}
 
       <RecipeModal
         recipe={selectedRecipe}

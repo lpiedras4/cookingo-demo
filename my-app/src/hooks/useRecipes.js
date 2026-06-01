@@ -20,10 +20,19 @@ export function useRecipes() {
     setRecipes((prev) => [...prev, newRecipe]);
   };
 
+const updateRecipe = async (recipe) => {
+  const updatedRecipe = await recipeService.update(id, recipe);
+  setRecipes((prev) => 
+    prev.map( (item) => (item.id === id ? updatedRecipe : item))
+  );
+  return updatedRecipe;
+}
+
+
   const deleteRecipe = async (id) => {
     await recipeService.delete(id);
     setRecipes((prev) => prev.filter((r) => r.id !== id));
   };
 
-  return { recipes, loading, error, createRecipe, deleteRecipe };
+  return { recipes, loading, error, createRecipe, deleteRecipe, updateRecipe };
 }

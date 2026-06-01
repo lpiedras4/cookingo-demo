@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { useIngredients } from "../../../hooks/useIngredients";
-const CreateRecipeCard = ({ onClose, onCreate }) => {
+const CreateRecipeCard = ({
+  onClose,
+  onCreate,
+  onUpdate,
+  recipeToEdit = null,
+}) => {
   /**
    * @property {string}        id
    * @property {string}        name
@@ -12,18 +17,34 @@ const CreateRecipeCard = ({ onClose, onCreate }) => {
    * @property {CookingStep[]} cookingSteps    - pasos con quiz (pantalla 4/5)
    *
    */
-
+  const isEditing = Boolean(recipeToEdit);
+  const [editingRecipe, setEditingRecipe] = useState(null);
   const { ingredients, loadingIngredients, ingredientError } = useIngredients();
   const [formData, setFormData] = useState({
-    name: "",
-    levelId: 1,
-    categoryId: 1,
-    imageUrl: "",
-    totalCalories: "",
-    totalProteins: "",
-    ingredients: [{ ingredientId: "", amount: "" }],
-    ingredientPreparation: [""],
-    cookingPreparation: [""],
+    name: recipeToEdit?.name || "",
+    levelId: recipeToEdit?.levelId || 1,
+    categoryId: recipeToEdit?.categoryId || 1,
+    imageUrl: recipeToEdit?.imageUrl || "",
+    totalCalories: recipeToEdit?.totalCalories || "",
+    totalProteins: recipeToEdit?.totalProteins || "",
+
+    ingredients:
+      recipeToEdit?.ingredients?.length > 0
+        ? recipeToEdit.ingredients.map((ingredient) => ({
+            ingredientId: ingredient.ingredientId,
+            amount: ingredient.amount,
+          }))
+        : [{ ingredientId: "", amount: "" }],
+
+    ingredientPreparation:
+      recipeToEdit?.ingredientPreparation?.length > 0
+        ? recipeToEdit.ingredientPreparation
+        : [""],
+
+    cookingPreparation:
+      recipeToEdit?.cookingPreparation?.length > 0
+        ? recipeToEdit.cookingPreparation
+        : [""],
   });
 
   const [saving, setSaving] = useState(false);
@@ -122,7 +143,12 @@ const CreateRecipeCard = ({ onClose, onCreate }) => {
         ),
       };
 
-      await onCreate(recipeToSend);
+      if (isEditing) {
+        await onUpdate(recipeToEdit.id, recipeToSend);
+      } else {
+        await onCreate(recipeToSend);
+      }
+
       onClose();
     } catch (error) {
       setError(error.message);
@@ -138,7 +164,7 @@ const CreateRecipeCard = ({ onClose, onCreate }) => {
     >
       <div className="flex justify-between">
         <h2 className="text-lg font-semibold text-white capitalize">
-          Crear receta
+          {isEditing ? "Editar receta" : "Crear receta"}
         </h2>
 
         <XMarkIcon
@@ -418,7 +444,13 @@ const CreateRecipeCard = ({ onClose, onCreate }) => {
             disabled={saving}
             className="px-8 py-2.5 leading-5 text-white transition-colors duration-300 transform bg-amber rounded-md hover:bg-amber-dark focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {saving ? "Creando..." : "Crear nueva receta"}
+            {saving
+              ? isEditing
+                ? "Guardando..."
+                : "Creando..."
+              : isEditing
+                ? "Guardar cambios"
+                : "Crear nueva receta"}
           </button>
         </div>
       </form>
