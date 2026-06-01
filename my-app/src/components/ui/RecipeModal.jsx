@@ -34,10 +34,10 @@ const RecipeModal = ({ recipe, onClose }) => {
                 {recipe.ingredients?.length > 0 ? (
                   recipe.ingredients.map((ingredient, index) => (
                     <p
-                      key={index}
+                      key={`${ingredient.ingredientId}-${index}`}
                       className="text-base font-semibold text-stone-700"
                     >
-                      {ingredient}
+                      {ingredient.amount} de {ingredient.name}
                     </p>
                   ))
                 ) : (

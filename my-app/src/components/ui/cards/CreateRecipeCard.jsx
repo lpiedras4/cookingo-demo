@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
+import { useIngredients } from "../../../hooks/useIngredients";
 const CreateRecipeCard = ({ onClose, onCreate }) => {
   /**
    * @property {string}        id
@@ -11,6 +12,8 @@ const CreateRecipeCard = ({ onClose, onCreate }) => {
    * @property {CookingStep[]} cookingSteps    - pasos con quiz (pantalla 4/5)
    *
    */
+
+  const { ingredients, loadingIngredients, ingredientError } = useIngredients();
   const [formData, setFormData] = useState({
     name: "",
     levelId: 1,
@@ -18,6 +21,7 @@ const CreateRecipeCard = ({ onClose, onCreate }) => {
     imageUrl: "",
     totalCalories: "",
     totalProteins: "",
+    ingredients: [{ ingredientId: "", amount: "" }],
     ingredientPreparation: [""],
     cookingPreparation: [""],
   });
@@ -58,6 +62,36 @@ const CreateRecipeCard = ({ onClose, onCreate }) => {
     }));
   };
 
+  const handleIngredientChange = (index, field, value) => {
+    setFormData((prev) => {
+      const updatedIngredients = [...prev.ingredients];
+
+      updatedIngredients[index] = {
+        ...updatedIngredients[index],
+        [field]: value,
+      };
+
+      return {
+        ...prev,
+        ingredients: updatedIngredients,
+      };
+    });
+  };
+
+  const addIngredient = () => {
+    setFormData((prev) => ({
+      ...prev,
+      ingredients: [...prev.ingredients, { ingredientId: "", amount: "" }],
+    }));
+  };
+
+  const removeIngredient = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      ingredients: prev.ingredients.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -71,6 +105,15 @@ const CreateRecipeCard = ({ onClose, onCreate }) => {
         imageUrl: formData.imageUrl,
         totalCalories: Number(formData.totalCalories),
         totalProteins: Number(formData.totalProteins),
+        ingredients: formData.ingredients
+          .filter(
+            (ingredient) =>
+              ingredient.ingredientId !== "" && ingredient.amount.trim() !== "",
+          )
+          .map((ingredient) => ({
+            ingredientId: Number(ingredient.ingredientId),
+            amount: ingredient.amount,
+          })),
         ingredientPreparation: formData.ingredientPreparation.filter(
           (step) => step.trim() != "",
         ),
@@ -204,7 +247,78 @@ const CreateRecipeCard = ({ onClose, onCreate }) => {
             />
           </div>
         </div>
+        <div className="mt-6 rounded-2xl bg-white/10 p-4">
+          <h3 className="mb-3 font-display text-xl font-bold text-white">
+            Ingredientes
+          </h3>
 
+          {loadingIngredients && (
+            <p className="text-sm font-bold text-amber">
+              Cargando ingredientes...
+            </p>
+          )}
+
+          {ingredientError && (
+            <p className="text-sm font-bold text-red-300">{ingredientError}</p>
+          )}
+
+          <div className="space-y-3">
+            {formData.ingredients.map((ingredient, index) => (
+              <div
+                key={index}
+                className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]"
+              >
+                <select
+                  value={ingredient.ingredientId}
+                  onChange={(event) =>
+                    handleIngredientChange(
+                      index,
+                      "ingredientId",
+                      event.target.value,
+                    )
+                  }
+                  className="block w-full rounded-md border border-gray-200 bg-white px-4 py-2 text-gray-700 focus:border-amber focus:outline-none focus:ring focus:ring-amber focus:ring-opacity-40"
+                >
+                  <option value="">Selecciona ingrediente</option>
+
+                  {ingredients.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  type="text"
+                  value={ingredient.amount}
+                  onChange={(event) =>
+                    handleIngredientChange(index, "amount", event.target.value)
+                  }
+                  placeholder="Cantidad: 1/2 taza (45 g)"
+                  className="block w-full rounded-md border border-gray-200 bg-white px-4 py-2 text-gray-700 focus:border-amber focus:outline-none focus:ring focus:ring-amber focus:ring-opacity-40"
+                />
+
+                {formData.ingredients.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeIngredient(index)}
+                    className="rounded-md bg-red-500 px-3 font-bold text-white hover:bg-red-600"
+                  >
+                    X
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={addIngredient}
+            className="mt-3 rounded-full bg-amber px-4 py-2 text-sm font-extrabold text-white hover:bg-amber-dark"
+          >
+            + Agregar ingrediente
+          </button>
+        </div>
         <div className="mt-6 rounded-2xl bg-white/10 p-4">
           <h3 className="mb-3 font-display text-xl font-bold text-white">
             Preparación de ingredientes
