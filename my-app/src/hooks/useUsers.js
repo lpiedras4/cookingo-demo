@@ -72,6 +72,17 @@ export function useUsers() {
     } 
   };
 
+  const refreshUser = async () => {
+  if (!user?.id) return;
+  try {
+    const updatedUser = await userService.getById(user.id);
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  } catch (e) {
+    console.warn("No se pudo recargar usuario:", e.message);
+  }
+};
+
   // Cierra sesión 
   const logout = () => {
     setUser(null);
@@ -79,5 +90,5 @@ export function useUsers() {
     navigate("/sign-in");
   };
 
-  return { user, loading, error, login, register, logout };
+  return { user, loading, error, login, register, logout, refreshUser };
 }

@@ -43,6 +43,13 @@ export const recipeService = {
     return res.json();
   },
 
+  complete: async (recipeId, userId) => {
+    const res = await fetch(`${BASE_URL}/${recipeId}/complete/${userId}`, {
+      method: "POST",
+    });
+    if (!res.ok) throw new Error("Error al completar receta");
+  },
+
   // Borra una receta
   delete: async (id) => {
     const res = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });

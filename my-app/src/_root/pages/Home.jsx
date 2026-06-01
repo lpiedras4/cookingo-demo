@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import React from "react";
 import { Link } from "react-router-dom";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -13,12 +14,19 @@ const Home = () => {
   }
   const [showForm, setShowForm] = useState(false);
   const { xp, completedLessons, level: diagnosticLevel } = useProgress();
-  const { user } = useUsers();
+  const { user, refreshUser } = useUsers();
   const baseLevel = diagnosticLevel ?? 0;
-  const xpLevel = user?.xp ?? 0;
-  const level =  baseLevel + xpLevel;
-  const xpActual = ((xp || 0) % 100);
+  const backendxp = user?.xp ?? 0;
+  const localxp = xp || 0;
+  const totalxp = Math.max(backendxp, localxp); // Asegura que mostramos el mayor valor entre backend y local
+  const xpLevel = Math.floor(totalxp / 100); // Cada 100 XP es un nivel
+  const level = baseLevel + xpLevel;
+  const xpActual = totalxp % 100;
   const porcentaje = (xpActual / 100) * 100;
+
+  useEffect(() => {
+    refreshUser();
+  }, []);
   return (
     <div className="mx-auto max-w-4xl px-5 py-6 md:px-8">
       {/* Header con logo y botón */}

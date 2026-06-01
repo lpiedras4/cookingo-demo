@@ -50,6 +50,7 @@
 export const lessons = [
   {
     id: "overnight-oats",
+    backendId: 1, // ID en la base de datos para sincronizar progreso y XP
     name: "Avena de noche",
     cuisine: "Desayuno saludable",
     description: "Avena remojada en frío: un desayuno cremoso, nutritivo y listo al despertar. 5 minutos de prep.",
