@@ -1,4 +1,5 @@
 import { useRecipes } from "../../hooks/useRecipes";
+import { useUsers } from "../../hooks/useUsers";
 import CreateRecipeCard from "../../components/ui/cards/CreateRecipeCard";
 import React, { useState } from "react";
 
@@ -11,7 +12,9 @@ const RecipesPage = () => {
   const { user } = useUsers();
   const isAdmin = user?.role === "ADMIN";
   const { recipes, createRecipe, deleteRecipe } = useRecipes();
-  console.log("Recetas API: ", recipes);
+  const { user } = useUsers();
+  const isAdmin = user?.role === "admin";
+
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [selectedType, setSelectedType] = useState("Todos");
   const [selectedDifficulty, setSelectedDifficulty] = useState("Todos");

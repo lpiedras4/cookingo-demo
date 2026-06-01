@@ -8,7 +8,9 @@ const Profile = () => {
   const navigate = useNavigate();
   const { xp, completedLessons, level: diagnosticLevel } = useProgress();
   const { user } = useUsers();
-  const level = diagnosticLevel !== null && diagnosticLevel  !== undefined ? diagnosticLevel + 1 : Math.floor((xp || 0) / 100) + 1;
+  const baseLevel = diagnosticLevel ?? 0;
+  const xpLevel = Math.floor((xp || 0) / 100);
+  const level = baseLevel + xpLevel;
   const xpActual = ((xp || 0) % 100);
   const porcentaje = (xpActual / 100) * 100;
 

@@ -66,6 +66,18 @@ export const userService = {
     return responseText ? JSON.parse(responseText) : null;
   },
 
+  addXp: async (id, xp) => {
+    const res = await fetch(`${BASE_URL}/${id}/xp?xp=${xp}`, {
+      method: "PUT",
+    });
+     const responseText = await res.text();
+
+    if (!res.ok) {
+      throw new Error(responseText || "Error al agregar XP");
+    }
+    return responseText ? JSON.parse(responseText) : null;
+  },
+
   delete: async (id) => {
     const res = await fetch(`${BASE_URL}/${id}`, {
       method: "DELETE",
