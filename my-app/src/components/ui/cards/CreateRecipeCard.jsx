@@ -243,7 +243,7 @@ const CreateRecipeCard = ({
 
           <div>
             <label className="text-gray-200" htmlFor="totalCalories">
-              Calorías totales
+              Calorías totales (kcal)
             </label>
             <input
               id="totalCalories"
@@ -252,14 +252,14 @@ const CreateRecipeCard = ({
               value={formData.totalCalories}
               onChange={handleChange}
               required
-              placeholder="350"
+              placeholder="350 kcal"
               className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md focus:border-amber focus:ring-amber focus:ring-opacity-40 focus:outline-none focus:ring"
             />
           </div>
 
           <div>
             <label className="text-gray-200" htmlFor="totalProteins">
-              Proteínas totales
+              Proteínas totales (gr)
             </label>
             <input
               id="totalProteins"
@@ -268,7 +268,7 @@ const CreateRecipeCard = ({
               value={formData.totalProteins}
               onChange={handleChange}
               required
-              placeholder="14"
+              placeholder="14 g"
               className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md focus:border-amber focus:ring-amber focus:ring-opacity-40 focus:outline-none focus:ring"
             />
           </div>

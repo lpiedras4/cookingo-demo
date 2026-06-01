@@ -8,8 +8,8 @@ const RecipesPage = () => {
   const [showForm, setShowForm] = useState(false);
   const { recipes, loading, error, createRecipe, deleteRecipe, updateRecipe } =
     useRecipes();
-  const { user } = useUsers();
-  const isAdmin = user?.role === "admin";
+  const  {user}  = useUsers();
+  const isAdmin = user?.role === "ADMIN";
 
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [editingRecipe, setEditingRecipe] = useState(null);

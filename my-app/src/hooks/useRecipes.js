@@ -20,7 +20,7 @@ export function useRecipes() {
     setRecipes((prev) => [...prev, newRecipe]);
   };
 
-const updateRecipe = async (recipe) => {
+const updateRecipe = async (id, recipe) => {
   const updatedRecipe = await recipeService.update(id, recipe);
   setRecipes((prev) => 
     prev.map( (item) => (item.id === id ? updatedRecipe : item))

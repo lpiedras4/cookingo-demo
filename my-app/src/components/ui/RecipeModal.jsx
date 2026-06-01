@@ -23,6 +23,14 @@ const RecipeModal = ({ recipe, onClose }) => {
               <h2 className="text-4xl font-black text-stone-950 md:text-6xl">
                 {recipe.name}
               </h2>
+              <div className="mt-3 space-x-3">
+                <span className="inline-flex rounded-full bg-amber px-4 py-1 text-sm font-black text-black">
+                  {recipe.totalProteins} gr de proteína
+                </span>
+                <span className="inline-flex rounded-full bg-amber px-4 py-1 text-sm font-black text-black">
+                  {recipe.totalCalories} kcal
+                </span>
+              </div>
             </div>
 
             <section className="border-b border-stone-300 pb-6">

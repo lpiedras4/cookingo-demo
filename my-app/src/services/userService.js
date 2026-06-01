@@ -72,6 +72,9 @@ export const userService = {
     });
      const responseText = await res.text();
 
+     if(xp == null || xp<0){
+      xp = 0;
+     }
     if (!res.ok) {
       throw new Error(responseText || "Error al agregar XP");
     }
