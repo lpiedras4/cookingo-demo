@@ -202,6 +202,7 @@ export const lessons = [
     badge: "Madrugador saludable",
     totalXp: 75, // 20 + 20 + 0 + 20 + 0 + 15
   },
+  
 ];
 
 /**
