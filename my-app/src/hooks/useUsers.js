@@ -30,7 +30,7 @@ export function useUsers() {
         localStorage.setItem("cookingo-progress", JSON.stringify({...JSON.parse(localStorage.getItem("cookingo-progress") || "{}"), xp: loggedUser.xp,}));
       }
       if(loggedUser.role == "ADMIN"){
-        navigate("/admin");
+        navigate("/");
       }else{
         navigate("/")
       }
