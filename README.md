@@ -3,7 +3,7 @@
 > An interactive learning app for cooking healthy, accessible meals, built around a gamified experience: a placement exam, an XP/leveling system, and step-by-step guided lessons for each recipe.
 
 [![Watch Demo](https://img.shields.io/badge/🎥-Watch%20Demo-red)](YOUR_YOUTUBE_LINK_HERE)
-[![Backend Repo](https://img.shields.io/badge/backend-repo-blue)](YOUR_BACKEND_LINK_HERE)
+[![Backend Repo](https://img.shields.io/badge/backend-repo-blue)](https://github.com/nicolasG27/cookingo-api)
 
 ![Cookingo demo](docs/demo.gif)
 <!-- 5-8s looping GIF: placement exam → home screen with XP → a full lesson -->
@@ -35,11 +35,11 @@ Cookingo teaches healthy recipes through guided lessons instead of just listing 
 | Progress state | Custom hook (`useProgress`) over `localStorage`, with cross-tab and backend sync |
 | API communication | Native `fetch`, one service module per resource |
 
-**Backend:** [cookingo-api](YOUR_BACKEND_LINK_HERE) — Spring Boot + MySQL
+**Backend:** [cookingo-api](https://github.com/nicolasG27/cookingo-api) — Spring Boot + MySQL
 
 ## 🚀 Local Setup
 
-**Prerequisites:** Node 18+, npm, and the [backend](YOUR_BACKEND_LINK_HERE) running locally (see `DatabaseGuide.md` in this repo to set up the database)
+**Prerequisites:** Node 18+, npm, and the [backend](https://github.com/nicolasG27/cookingo-api) running locally (see `DatabaseGuide.md` in this repo to set up the database)
 
 ```bash
 git clone https://github.com/lpiedras4/cookingo-demo.git
@@ -82,6 +82,6 @@ cookingo-demo/
 
 ## 📄 License
 
-MIT
+LICENSE_MIT
 
 **Author:** Leonardo — [LinkedIn](#) · [Backend repo for this project](YOUR_BACKEND_LINK_HERE)
