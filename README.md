@@ -81,7 +81,7 @@ cookingo-demo/
 
 - **Reconciling local and backend XP:** since progress can update optimistically on the client before the backend confirms it, total XP is computed as the max of the backend and local values rather than trusting either source blindly — avoiding a visible regression if a sync request is still in flight or previously failed.
 
-- **Recipe FORM for CRUD operations:** [cuéntame en 1-2 líneas una decisión real que tomaste al construir el formulario de crear/editar/eliminar recetas — por ejemplo, algo de validación, manejo de estado del formulario, o cómo conectaste los métodos PUT/DELETE a la UI.]
+- **Form state modeled directly on the backend's API schema:** `CreateRecipeCard` is one reusable component for both creating and editing recipes — it switches into "edit mode" when passed an existing recipe, calling `onUpdate` instead of `onCreate`. Its form state mirrors the backend's recipe DTO directly (foreign keys like `levelId`, `categoryId`, and `ingredientId` instead of nested objects), so the payload can be sent to the API as-is, without a separate transformation layer. Combined with role-based rendering (`user?.role === "ADMIN"`), only admins see the create/edit/delete controls, while all users can browse the recipe catalog.
 ## 👥 Contributors
 
 - Leonardo Piedras — [GitHub](https://github.com/lpiedras4)
