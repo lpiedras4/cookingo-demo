@@ -76,8 +76,12 @@ cookingo-demo/
 ## Design Decisions
 
 - **Hybrid local + backend progress:** `useProgress` stores XP and completed lessons in `localStorage` optimistically (the UI responds instantly) and syncs with the backend in the background when a user is authenticated, without blocking interaction if the sync fails.
-- **Combined leveling:** the level shown to the user combines the level assigned by the placement exam with the level derived from accumulated XP — [add here why combining both was chosen instead of using just one].
-- [Add 1-2 real challenges you faced — for example, something about the placement exam design or how you structured the lesson flow.]
+
+- **Combined leveling:** the level shown to the user is the sum of a base level assigned by the placement exam (`assignLevel(score)` buckets the exam score into levels 0-2+) and a level derived from accumulated XP (`floor(totalXp / 100)`, one level per 100 XP). This mirrors how placement tests work in apps like Duolingo: a user's prior knowledge sets where they start, while ongoing engagement with lessons is what keeps them leveling up from there — someone with cooking experience isn't forced through beginner content, but still has to earn progress like everyone else.
+
+- **Reconciling local and backend XP:** since progress can be updated optimistically on the client before the backend confirms it, `totalXp` is computed as `Math.max(backendXp, localXp)` rather than trusting either source blindly. This avoids the app showing a regression in XP if a sync request is still in flight or previously failed.
+
+- **Versioned local storage schema:** progress data saved to `localStorage` includes a `version` field, with a `migrateData()` function that upgrades older saved shapes to the current one. This was built in from the start so that changing the progress data structure later wouldn't wipe out or corrupt existing users' saved progress.
 
 
 ## 📄 License
