@@ -77,12 +77,16 @@ cookingo-demo/
 
 - **Hybrid local + backend progress:** `useProgress` stores XP and completed lessons in `localStorage` optimistically (the UI responds instantly) and syncs with the backend in the background when a user is authenticated, without blocking interaction if the sync fails.
 
-- **Combined leveling:** the level shown to the user is the sum of a base level assigned by the placement exam (`assignLevel(score)` buckets the exam score into levels 0-2+) and a level derived from accumulated XP (`floor(totalXp / 100)`, one level per 100 XP). This mirrors how placement tests work in apps like Duolingo: a user's prior knowledge sets where they start, while ongoing engagement with lessons is what keeps them leveling up from there — someone with cooking experience isn't forced through beginner content, but still has to earn progress like everyone else.
+- **Combined leveling:** the level shown to the user is the sum of a base level assigned by the placement exam and a level derived from accumulated XP (one level per 100 XP). This mirrors placement tests in apps like Duolingo — prior knowledge sets where a user starts, while ongoing engagement is what keeps them leveling up from there. This part of the progress system was built collaboratively with a teammate.
 
-- **Reconciling local and backend XP:** since progress can be updated optimistically on the client before the backend confirms it, `totalXp` is computed as `Math.max(backendXp, localXp)` rather than trusting either source blindly. This avoids the app showing a regression in XP if a sync request is still in flight or previously failed.
+- **Reconciling local and backend XP:** since progress can update optimistically on the client before the backend confirms it, total XP is computed as the max of the backend and local values rather than trusting either source blindly — avoiding a visible regression if a sync request is still in flight or previously failed.
 
-- **Versioned local storage schema:** progress data saved to `localStorage` includes a `version` field, with a `migrateData()` function that upgrades older saved shapes to the current one. This was built in from the start so that changing the progress data structure later wouldn't wipe out or corrupt existing users' saved progress.
+- **Recipe FORM for CRUD operations:** [cuéntame en 1-2 líneas una decisión real que tomaste al construir el formulario de crear/editar/eliminar recetas — por ejemplo, algo de validación, manejo de estado del formulario, o cómo conectaste los métodos PUT/DELETE a la UI.]
+## 👥 Contributors
 
+- Leonardo Piedras — [GitHub](https://github.com/lpiedras4)
+- Luis Ángel Robles — [GitHub](https://github.com/luis0inter)
+- Jesus Nicolas García Morales [GitHub](https://github.com/nicolasG27)
 
 ## 📄 License
 
