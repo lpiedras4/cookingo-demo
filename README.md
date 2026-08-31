@@ -1,11 +1,11 @@
 # Cookingo
-
+![(my-app/public/demo/logoCookingo.png)
 > An interactive learning app for cooking healthy, accessible meals, built around a gamified experience: a placement exam, an XP/leveling system, and step-by-step guided lessons for each recipe.
 
 [![Watch Demo](https://img.shields.io/badge/🎥-Watch%20Demo-red)](https://youtu.be/eXaea65ZqbI)
 [![Backend Repo](https://img.shields.io/badge/backend-repo-blue)](https://github.com/nicolasG27/cookingo-api)
 
-![Cookingo demo](docs/demo.gif)
+![Cookingo demo](my-app/public/demo/cookingo-gif.gif)
 <!-- 5-8s looping GIF: placement exam → home screen with XP → a full lesson -->
 
 ** [Watch the full demo video](https://youtu.be/eXaea65ZqbI)** — a narrated walkthrough covering technical decisions
